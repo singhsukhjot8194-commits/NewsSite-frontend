@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>News Management - Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">Admin Panel</div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="news.html"><i class="fas fa-newspaper"></i> News</a>
+          </li>
+          <li>
+            <a href="opportunities.html"
+              ><i class="fas fa-briefcase"></i> Opportunities</a
+            >
+          </li>
+          <li>
+            <a href="registrations.html"
+              ><i class="fas fa-users"></i> Registrations</a
+            >
+          </li>
+          <li>
+            <a href="#" id="logoutBtn"
+              ><i class="fas fa-sign-out-alt"></i> Logout</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">News Management</h1>
+        <button class="btn btn-primary" id="addNewsBtn">
+          <i class="fas fa-plus"></i> Add New
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Region</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="newsTableBody">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal" id="newsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Add News</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <form id="newsForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" name="title" class="form-control" required />
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Category</label>
+                <select name="category" class="form-control" required>
+                  <option value="Business">Business</option>
+                  <option value="Education">Education</option>
+                  <option value="Politics">Politics</option>
+                  <option value="News">News</option>
+                  <option value="Breaking News">Breaking News</option>
+                  <option value="Podcasts">Podcasts</option>
+                  <option value="Editorial">Editorial</option>
+                  <option value="County News">County News</option>
+                  <option value="Africa">Africa</option>
+                  <option value="World">World</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Sports">Sports</option>
+                </select>
+              </div>
+              <div class="form-group" id="newsRegionGroup" hidden>
+                <label for="newsRegion">Africa region</label>
+                <select name="region" id="newsRegion" class="form-control">
+                  <option value="">Choose a region</option>
+                  <option value="north-africa">North Africa</option>
+                  <option value="south-africa">South Africa</option>
+                  <option value="east-africa">East Africa</option>
+                  <option value="west-africa">West Africa</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="form-control" required>
+                  <option value="published" selected>Published</option>
+                  <option value="draft">Draft</option>
+                </select>
+                <small
+                  >Published news appears on the main page. Drafts stay hidden
+                  until published.</small
+                >
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Content</label>
+              <textarea name="content" class="form-control" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Image</label>
+              <input
+                type="file"
+                name="image"
+                class="form-control"
+                accept="image/jpeg,image/png,image/webp"
+              />
+              <div class="current-image-preview" id="currentNewsImage" hidden>
+                <span>Current image</span>
+                <img id="currentNewsImagePreview" alt="Current article image" />
+              </div>
+              <div class="image-editor" id="newsImageEditor" hidden>
+                <div class="image-crop-column">
+                  <div class="image-crop-toolbar">
+                    <label for="newsImageRatio">Frame</label>
+                    <select id="newsImageRatio" class="form-control">
+                      <option value="16:9">16:9</option>
+                      <option value="4:3">4:3</option>
+                      <option value="1:1">1:1</option>
+                      <option value="3:4">3:4</option>
+                      <option value="free">Free</option>
+                    </select>
+                    <div class="image-crop-actions">
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        id="zoomImageOut"
+                        aria-label="Zoom out"
+                        title="Zoom out"
+                      >
+                        <i class="fas fa-search-minus"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        id="resetImageCrop"
+                        aria-label="Reset crop"
+                        title="Reset crop"
+                      >
+                        <i class="fas fa-undo"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        id="zoomImageIn"
+                        aria-label="Zoom in"
+                        title="Zoom in"
+                      >
+                        <i class="fas fa-search-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="image-crop-workspace">
+                    <img id="newsImageToCrop" alt="Selected article image" />
+                  </div>
+                </div>
+                <aside class="image-preview-panel">
+                  <h4>Preview</h4>
+                  <div
+                    class="image-crop-preview"
+                    id="newsImageCropPreview"
+                  ></div>
+                </aside>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="newsVideo">Video</label>
+              <input
+                type="file"
+                id="newsVideo"
+                name="video"
+                class="form-control"
+                accept="video/mp4,video/webm,video/quicktime"
+              />
+              <small>Optional. Supported formats: MP4, WebM, and MOV.</small>
+              <div class="current-image-preview" id="currentNewsVideo" hidden>
+                <span>Current video</span>
+                <video id="currentNewsVideoPreview" controls preload="metadata"></video>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Tags (comma separated)</label>
+              <input type="text" name="tags" class="form-control" />
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>SEO Title</label>
+                <input type="text" name="seoTitle" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>SEO Description</label>
+                <input type="text" name="seoDesc" class="form-control" />
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="checkbox-group">
+                <input type="checkbox" id="isBreaking" name="isBreaking" />
+                <label for="isBreaking">Breaking News</label>
+              </div>
+              <div class="checkbox-group">
+                <input type="checkbox" id="isFeatured" name="isFeatured" />
+                <label for="isFeatured">Featured</label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline close-modal">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script src="js/admin.js?v=20261006-africa-sections"></script>
+  </body>
+</html>

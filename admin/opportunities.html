@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunities - Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">Admin Panel</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="news.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="opportunities.html"><i class="fas fa-briefcase"></i> Opportunities</a></li>
+                <li><a href="registrations.html"><i class="fas fa-users"></i> Registrations</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Services &amp; Pricing</h1>
+            <button class="btn btn-primary" id="addOppBtn"><i class="fas fa-plus"></i> Add New</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>Service Prices (USD)</h2>
+                    <p>Choose free registration, a subscription billed every 3 months, or a one-time Special payment. Paid services start at USD 0.50.</p>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Price (USD)</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Visibility</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="oppTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal" id="oppModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Opportunity</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="oppForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="type" class="form-control" required>
+                                <option value="Class">Class</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Webinar">Webinar</option>
+                                <option value="Internship">Internship</option>
+                                <option value="Course">Course</option>
+                                <option value="Event">Event</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status" class="form-control" required>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="ongoing">Ongoing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Description</label>
+                        <textarea name="shortDesc" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Details</label>
+                        <textarea name="fullDetails" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Banner Image</label>
+                        <input type="file" name="banner" class="form-control" accept="image/*">
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" name="date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="text" name="time" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Duration</label>
+                            <input type="text" name="duration" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Mode</label>
+                            <select name="mode" class="form-control">
+                                <option value="Online">Online</option>
+                                <option value="Offline">Offline</option>
+                                <option value="Hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Eligibility</label>
+                        <input type="text" name="eligibility" class="form-control">
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="pricingType">Pricing option</label>
+                            <select id="pricingType" name="pricingType" class="form-control" required>
+                                <option value="free">Free</option>
+                                <option value="subscription">Subscription (every 3 months)</option>
+                                <option value="special">Special (one-time payment)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="servicePriceGroup" hidden>
+                            <label id="servicePriceLabel" for="servicePrice">Service price (USD)</label>
+                            <input type="number" id="servicePrice" name="fees" class="form-control" min="0.50" max="999999.99" step="0.01" placeholder="e.g. 25.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Deadline</label>
+                            <input type="date" name="deadline" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Seats</label>
+                            <input type="number" name="totalSeats" class="form-control">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="oppIsPublished" name="isPublished">
+                            <label for="oppIsPublished">Publish on the website</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="isFeatured" name="isFeatured">
+                            <label for="isFeatured">Featured</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="js/admin.js"></script>
+</body>
+</html>

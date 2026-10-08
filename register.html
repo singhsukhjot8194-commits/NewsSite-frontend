@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - The African Diplomat</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="container navbar">
+      <a href="index.html" class="logo" aria-label="The African Diplomat home">
+        <img class="logo-image" src="logo.jpeg" alt="">
+        <span>The African Diplomat</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="opportunities.html?type=Course">Courses</a>
+        <a href="opportunities.html?type=Workshop">Workshops</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="margin-top: 60px; min-height: 60vh; display: flex; justify-content: center;">
+    <div style="background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 500px;">
+      <h2 style="margin-bottom: 20px; text-align: center;">Registration Form</h2>
+      <form id="standalone-register-form">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Submit Registration</button>
+      </form>
+      <div id="register-message" style="margin-top: 20px; text-align: center;"></div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('standalone-register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const submitBtn = form.querySelector('button');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      const data = {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value,
+        opportunityId: new URLSearchParams(window.location.search).get('oppId') || 'general'
+      };
+
+      try {
+        const response = await fetch('http://localhost:5000/api/registrations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if(response.ok) {
+          form.style.display = 'none';
+          document.getElementById('register-message').innerHTML = '<h3 style="color: green;">Registration Successful!</h3><p>Thank you for registering.</p>';
+        } else {
+          throw new Error('Failed');
+        }
+      } catch (err) {
+        document.getElementById('register-message').innerHTML = '<p style="color: red;">Error submitting form. Please try again.</p>';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Registration';
+      }
+    });
+  </script>
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-about">
+          <a href="index.html" class="logo" aria-label="The African Diplomat home"><img class="logo-image" src="logo.jpeg" alt=""><span>The African Diplomat</span></a>
+          <p>Your source for African news, insight, and opportunities.</p>
+        </div>
+        <div class="footer-categories">
+          <h3>Categories</h3>
+          <ul>
+            <li><a href="category.html?cat=news">News</a></li><li><a href="category.html?cat=politics">Politics</a></li>
+            <li><a href="category.html?cat=business">Business</a></li><li><a href="category.html?cat=education">Education</a></li>
+            <li><a href="category.html?cat=sports">Sports</a></li><li><a href="category.html?cat=editorial">Editorial</a></li>
+            <li><a href="category.html?cat=breaking-news">Breaking News</a></li><li><a href="category.html?cat=podcasts">Podcasts</a></li>
+            <li><a href="category.html?cat=county-news">County News</a></li><li><a href="category.html?cat=africa">Africa</a></li>
+            <li><a href="category.html?cat=world">World</a></li><li><a href="category.html?cat=technology">Technology</a></li>
+            <li><a href="opportunities.html?type=Course">Courses</a></li><li><a href="opportunities.html?type=Workshop">Workshops</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h3>Contact &amp; Follow</h3>
+          <div class="footer-social-links">
+            <a href="#" data-contact-link="whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
+            <a href="#" data-contact-link="instagram" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i><span>Instagram</span></a>
+            <a href="#" data-contact-link="x" aria-label="X"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i><span>X</span></a>
+            <a href="#" data-contact-link="twitter" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i><span>Twitter</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 The African Diplomat. All rights reserved.</span>
+        <a href="#" class="back-to-top">Back to top <i class="fas fa-chevron-up" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

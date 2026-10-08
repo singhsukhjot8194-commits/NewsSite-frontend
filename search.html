@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results - The African Diplomat</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="topline"><div class="container topline-inner"><time id="today-date"></time><a href="mailto:subscribe@theafricandiplomat.com"><i class="far fa-envelope"></i> Subscribe</a></div></div>
+    <div class="container masthead">
+      <a href="index.html" class="brand" aria-label="The African Diplomat home"><img class="brand-image" src="logo.jpeg" alt=""><span class="brand-name">TAD<small>THE AFRICAN DIPLOMAT</small></span><span class="brand-tagline">AFRICA'S VOICE OF DIPLOMACY</span></a>
+      <div class="masthead-actions">
+        <form id="search-form" class="search-bar"><input type="search" placeholder="Search news..." aria-label="Search news"><button type="submit" aria-label="Search"><i class="fas fa-search"></i></button></form>
+        <a class="support-button" href="mailto:support@theafricandiplomat.com"><i class="fas fa-heart"></i> Support Our Journalism</a>
+      </div>
+    </div>
+    <div class="primary-nav"><div class="container navbar">
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html" aria-label="Home"><i class="fas fa-home"></i></a>
+        <a href="category.html?cat=business">Business</a><a href="category.html?cat=education">Education</a><a href="category.html?cat=politics">Politics</a><a href="category.html?cat=news">News</a><a href="category.html?cat=breaking-news">Breaking News</a><a href="category.html?cat=podcasts">Podcasts</a><a href="category.html?cat=sports">Sports</a><a href="category.html?cat=editorial">Editorial</a><a href="category.html?cat=county-news">County News</a><a href="opportunities.html?type=Course">Courses</a><a href="opportunities.html?type=Workshop">Workshops</a>
+        <div class="nav-more"><a href="category.html?cat=africa" class="nav-more-link">Africa <i class="fas fa-chevron-down"></i></a><div class="nav-dropdown"><a href="category.html?cat=africa">All Africa</a><a href="category.html?cat=africa&amp;region=north-africa">North Africa</a><a href="category.html?cat=africa&amp;region=south-africa">South Africa</a><a href="category.html?cat=africa&amp;region=east-africa">East Africa</a><a href="category.html?cat=africa&amp;region=west-africa">West Africa</a></div></div>
+        <div class="nav-more"><button type="button" class="nav-more-link">More <i class="fas fa-chevron-down"></i></button><div class="nav-dropdown"><a href="category.html?cat=world">World</a><a href="category.html?cat=technology">Technology</a></div></div>
+      </nav>
+      <a class="nav-search" href="search.html" aria-label="Search"><i class="fas fa-search"></i></a>
+    </div></div>
+  </header>
+
+  <div class="ad-label">ADVERTISEMENT</div>
+  <main class="container content-layout category-layout">
+    <div class="primary-content">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Search</span></div>
+      <h1 class="section-title category-title" id="search-title">Search Results</h1>
+      <div class="grid-container news-grid" id="search-results"><!-- Populated by JS --></div>
+    </div>
+    <aside class="latest-sidebar"><h2 class="sidebar-heading">Latest News</h2><div id="latest-sidebar"><!-- Populated by JS --></div></aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-about">
+          <a href="index.html" class="logo" aria-label="The African Diplomat home"><img class="logo-image" src="logo.jpeg" alt=""><span>The African Diplomat</span></a>
+          <p>Your source for African news, insight, and opportunities.</p>
+        </div>
+        <div class="footer-categories">
+          <h3>Categories</h3>
+          <ul>
+            <li><a href="category.html?cat=news">News</a></li><li><a href="category.html?cat=politics">Politics</a></li>
+            <li><a href="category.html?cat=business">Business</a></li><li><a href="category.html?cat=education">Education</a></li>
+            <li><a href="category.html?cat=sports">Sports</a></li><li><a href="category.html?cat=editorial">Editorial</a></li>
+            <li><a href="category.html?cat=breaking-news">Breaking News</a></li><li><a href="category.html?cat=podcasts">Podcasts</a></li>
+            <li><a href="category.html?cat=county-news">County News</a></li><li><a href="category.html?cat=africa">Africa</a></li>
+            <li><a href="category.html?cat=world">World</a></li><li><a href="category.html?cat=technology">Technology</a></li>
+            <li><a href="opportunities.html?type=Course">Courses</a></li><li><a href="opportunities.html?type=Workshop">Workshops</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h3>Contact &amp; Follow</h3>
+          <div class="footer-social-links">
+            <a href="#" data-contact-link="whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
+            <a href="#" data-contact-link="instagram" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i><span>Instagram</span></a>
+            <a href="#" data-contact-link="x" aria-label="X"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i><span>X</span></a>
+            <a href="#" data-contact-link="twitter" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i><span>Twitter</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>&copy; 2026 The African Diplomat. All rights reserved.</span><a href="#" class="back-to-top">Back to top <i class="fas fa-chevron-up" aria-hidden="true"></i></a></div>
+    </div>
+  </footer>
+  <script src="js/app.js?v=20261007-services-sections"></script>
+</body>
+</html>

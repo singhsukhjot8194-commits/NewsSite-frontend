@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrations - Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">Admin Panel</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="news.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="opportunities.html"><i class="fas fa-briefcase"></i> Opportunities</a></li>
+                <li><a href="registrations.html"><i class="fas fa-users"></i> Registrations</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Registrations</h1>
+            <div>
+                <button class="btn btn-primary" id="addRegistrationBtn"><i class="fas fa-plus"></i> Add Registration</button>
+                <button class="btn btn-outline" id="exportExcelBtn"><i class="fas fa-file-excel"></i> Export Excel</button>
+                <button class="btn btn-outline" id="exportCsvBtn"><i class="fas fa-file-csv"></i> Export CSV</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="registration-filters">
+                    <input type="search" id="searchInput" class="form-control" placeholder="Search name, email or phone..." aria-label="Search registrations">
+                    <select id="opportunityFilter" class="form-control" aria-label="Filter by class or opportunity">
+                        <option value="">All classes and opportunities</option>
+                    </select>
+                    <select id="statusFilter" class="form-control" aria-label="Filter by registration status">
+                        <option value="">All statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Class / Opportunity</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="regTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal" id="registrationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="registrationModalTitle">Add Registration</h3>
+                <button type="button" class="close-modal">&times;</button>
+            </div>
+            <form id="registrationForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="registrationName">Name</label>
+                        <input type="text" id="registrationName" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationEmail">Email</label>
+                        <input type="email" id="registrationEmail" name="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationPhone">Phone</label>
+                        <input type="tel" id="registrationPhone" name="phone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationOpportunity">Opportunity / Event</label>
+                        <select id="registrationOpportunity" name="opportunityId" class="form-control" required>
+                            <option value="">Select an opportunity or event</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationStatus">Status</label>
+                        <select id="registrationStatus" name="status" class="form-control">
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveRegistrationBtn">Add Registration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="js/admin.js"></script>
+</body>
+</html>
