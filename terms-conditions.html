@@ -3,48 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Courses & Workshops - The African Diplomat</title>
+  <title>Terms &amp; Conditions - The African Diplomat</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .legal-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .legal-container h1 {
+      margin-bottom: 20px;
+      color: #1e293b;
+    }
+    .legal-container h2 {
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    .legal-container p {
+      margin-bottom: 15px;
+      color: #475569;
+      line-height: 1.6;
+    }
+    .legal-container ul {
+      margin-left: 20px;
+      margin-bottom: 20px;
+      color: #475569;
+    }
+    .legal-container li {
+      margin-bottom: 10px;
+    }
+  </style>
+  <script src="js/app.js" defer></script>
 </head>
 <body>
 
-  <header>
-    <div class="container navbar">
-      <a href="index.html" class="logo" aria-label="The African Diplomat home">
-        <img class="logo-image" src="logo.jpeg" alt="">
-        <span>The African Diplomat</span>
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container" style="display:flex; justify-content:center; padding: 20px;">
+      <a href="index.html" class="logo">
+        <img src="images/logo.png" alt="The African Diplomat" style="height: 60px;">
       </a>
-      <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="opportunities.html?type=Course">Courses</a>
-        <a href="opportunities.html?type=Workshop">Workshops</a>
-      </nav>
-      <form id="search-form" class="search-bar">
-        <input type="text" placeholder="Search news...">
-        <button type="submit"><i class="fas fa-search"></i></button>
-      </form>
     </div>
   </header>
 
-  <main class="container" style="margin-top: 40px; min-height: 60vh;">
-    <h1 class="section-title opportunities-title">Courses &amp; Workshops</h1>
-    
-    <div class="filter-tabs">
-      <button class="filter-tab active" data-type="all">All</button>
-      <button class="filter-tab" data-type="Class">Classes</button>
-      <button class="filter-tab" data-type="Workshop">Workshops</button>
-      <button class="filter-tab" data-type="Webinar">Webinars</button>
-      <button class="filter-tab" data-type="Internship">Internships</button>
-      <button class="filter-tab" data-type="Course">Courses</button>
-      <button class="filter-tab" data-type="Event">Events</button>
-    </div>
+  <main>
+    <div class="legal-container">
+      <h1>Terms &amp; Conditions</h1>
+      <p>Last Updated: October 2026</p>
 
-    <div class="grid-container news-grid" id="opportunities-grid" style="margin-top: 30px;">
-      <!-- Populated by JS -->
+      <p>Welcome to The African Diplomat (TAD). By accessing or using our website, services, and content, you agree to comply with and be bound by the following terms and conditions.</p>
+
+      <h2>1. Use of Content</h2>
+      <p>All news articles, editorials, images, and content published on this website are the intellectual property of The African Diplomat or its contributors. You may not reproduce, distribute, or transmit our content without explicit prior permission.</p>
+
+      <h2>2. User Conduct</h2>
+      <p>You agree to use our website for lawful purposes only. You must not use our platform to post harmful, offensive, or discriminatory comments, nor attempt to gain unauthorized access to our administrative systems.</p>
+
+      <h2>3. Registrations and Payments</h2>
+      <p>When you register for our opportunities, courses, or subscribe to our journalism, you agree to provide accurate and complete information. All payments processed through our designated gateways are subject to our <a href="refund-policy.html">Refund Policy</a>.</p>
+
+      <h2>4. Third-Party Links</h2>
+      <p>Our articles and opportunities may contain links to third-party websites or services that are not owned or controlled by TAD. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party sites.</p>
+
+      <h2>5. Changes to Terms</h2>
+      <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. Continued use of our website after any such changes constitutes your acceptance of the new Terms.</p>
+
+      <h2>6. Contact Us</h2>
+      <p>If you have any questions about these Terms, please contact us via our official WhatsApp or social media links provided in the footer.</p>
     </div>
   </main>
 
+  <!-- Footer -->
   <footer>
     <div class="container">
       <div class="footer-content">
@@ -97,8 +131,5 @@
       </div>
     </div>
   </footer>
-
-  <script src="js/app.js?v=20261007-services-sections"></script>
 </body>
 </html>
-
