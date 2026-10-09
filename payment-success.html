@@ -1,28 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Status - The African Diplomat</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - The African Diplomat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .payment-status-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .status-icon.success {
+            color: #10b981;
+        }
+        
+        .status-icon.loading {
+            color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        
+        .status-icon.error {
+            color: #ef4444;
+        }
+        
+        .payment-status-container h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+        
+        .payment-status-container p {
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .btn-return {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color, #cd2027);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-return:hover {
+            opacity: 0.9;
+        }
+        
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script src="js/app.js" defer></script>
 </head>
+
 <body>
-  <header>
-    <div class="container navbar">
-      <a href="index.html" class="logo" aria-label="The African Diplomat home">
-        <img class="logo-image" src="logo.jpeg" alt="">
-        <span>The African Diplomat</span>
-      </a>
-    </div>
-  </header>
-  <main class="container" style="min-height: 55vh; display: grid; place-items: center; text-align: center;">
-    <section>
-      <h1 class="section-title">Payment Status</h1>
-      <p id="payment-status-message" role="status" aria-live="polite">Verifying your payment...</p>
-      <a class="btn btn-primary" href="opportunities.html" style="margin-top: 24px;">Browse Services</a>
-    </section>
-  </main>
-  <script src="js/app.js?v=20261007-services-sections"></script>
+
+    <!-- Include your Header here (can be copied from index.html) -->
+    <header class="main-header">
+        <div class="header-container" style="display:flex; justify-content:center; padding: 20px;">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="The African Diplomat" style="height: 60px;">
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="payment-status-container" id="status-container">
+            <div class="status-icon loading" id="status-icon">⏳</div>
+            <h1 id="status-title">Verifying Payment...</h1>
+            <p id="status-message">Please wait while we confirm your payment with the gateway.</p>
+            <a href="index.html" class="btn-return">Return to Homepage</a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+
+            const icon = document.getElementById('status-icon');
+            const title = document.getElementById('status-title');
+            const message = document.getElementById('status-message');
+
+            if (!sessionId) {
+                icon.className = 'status-icon error';
+                icon.textContent = '❌';
+                title.textContent = 'Invalid Session';
+                message.textContent = 'No payment session ID was provided.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/payments/status/${sessionId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    icon.className = 'status-icon success';
+                    icon.textContent = '✅';
+                    title.textContent = 'Payment Successful!';
+                    message.textContent = `Thank you for your payment. Your transaction was completed successfully. Reference ID: ${data.registration?._id || sessionId.substring(0, 10)}...`;
+                } else {
+                    icon.className = 'status-icon error';
+                    icon.textContent = '⚠️';
+                    title.textContent = 'Payment Verification Failed';
+                    message.textContent = data.message || 'We could not verify your payment status at this time. If you were charged, please contact support.';
+                }
+            } catch (error) {
+                icon.className = 'status-icon error';
+                icon.textContent = '⚠️';
+                title.textContent = 'Network Error';
+                message.textContent = 'Unable to reach the server to verify your payment. Please refresh the page in a moment.';
+            }
+        });
+    </script>
 </body>
+
 </html>

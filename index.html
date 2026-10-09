@@ -119,6 +119,20 @@
           <label for="phone">Phone Number</label>
           <input type="tel" id="phone" name="phone" required>
         </div>
+        <div class="payment-methods" style="margin-top: 15px; margin-bottom: 15px;">
+          <p style="margin-bottom: 8px; font-weight: 500; font-size: 14px;">Select Payment Method:</p>
+          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <label style="flex: 1; border: 1px solid #ccc; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center;">
+              <input type="radio" name="paymentMethod" value="stripe" checked style="margin-right: 5px;"> Card
+            </label>
+            <label style="flex: 1; border: 1px solid #ccc; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center;">
+              <input type="radio" name="paymentMethod" value="lonestar" style="margin-right: 5px;"> Lonestar
+            </label>
+            <label style="flex: 1; border: 1px solid #ccc; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center;">
+              <input type="radio" name="paymentMethod" value="orange" style="margin-right: 5px;"> Orange
+            </label>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Proceed to Payment</button>
       </form>
     </div>

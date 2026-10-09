@@ -467,7 +467,13 @@ const initOpportunityDetail = async () => {
   if (oppIdInput) oppIdInput.value = opp.id || slug;
 
   if (openBtn && modal) {
-    openBtn.addEventListener('click', () => modal.classList.add('active'));
+    openBtn.addEventListener('click', () => {
+      const pmContainer = document.getElementById('payment-methods-container');
+      if (pmContainer) {
+        pmContainer.style.display = pricingType === 'free' ? 'none' : 'block';
+      }
+      modal.classList.add('active');
+    });
   }
   
   if (closeBtn && modal) {
@@ -478,15 +484,20 @@ const initOpportunityDetail = async () => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
       submitBtn.textContent = pricingType === 'free' ? 'Submitting...' : 'Redirecting to secure checkout...';
       submitBtn.disabled = true;
 
-      const data = {
-        name: form.name.value,
-        email: form.email.value,
-        phone: form.phone.value,
-        opportunityId: form.opportunityId.value
-      };
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      if (pricingType !== 'free' && (data.paymentMethod === 'lonestar' || data.paymentMethod === 'orange')) {
+        alert('Mobile Money integration is coming soon! Please use Card for now.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+      }
+
 
       try {
         if (pricingType === 'free') {
@@ -675,6 +686,13 @@ if (quickPayForm && document.getElementById('register-modal-title')) {
     try {
       const formData = new FormData(quickPayForm);
       const data = Object.fromEntries(formData.entries());
+
+      if (data.paymentMethod === 'lonestar' || data.paymentMethod === 'orange') {
+        alert('Mobile Money integration is coming soon! Please use Card for now.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+      }
 
       const session = await createCheckoutSession(data);
       if (session && session.url) {
