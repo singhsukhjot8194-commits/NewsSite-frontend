@@ -98,12 +98,62 @@ const registerOpportunity = async (data) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || 'Network response was not ok');
+    }
     return await response.json();
   } catch (error) {
     console.error('Error registering:', error);
     throw error;
   }
+};
+
+const registerOpportunityWithProof = async (formData) => {
+  try {
+    const response = await fetch(`${API_BASE}/registrations`, {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Failed to submit registration');
+    return result;
+  } catch (error) {
+    console.error('Error submitting local registration with proof:', error);
+    throw error;
+  }
+};
+
+const bindPaymentMethodToggles = (form) => {
+  if (!form) return;
+  const radios = form.querySelectorAll('input[name="paymentMethod"]');
+  const orangeBox = form.querySelector('#orange-details');
+  const lonestarBox = form.querySelector('#lonestar-details');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  if (submitBtn && !submitBtn.dataset.originalText) {
+    submitBtn.dataset.originalText = submitBtn.textContent;
+  }
+
+  const updateView = () => {
+    const selected = form.querySelector('input[name="paymentMethod"]:checked')?.value || 'stripe';
+    if (orangeBox) orangeBox.style.display = selected === 'orange' ? 'block' : 'none';
+    if (lonestarBox) lonestarBox.style.display = selected === 'lonestar' ? 'block' : 'none';
+
+    if (submitBtn) {
+      if (selected === 'orange' || selected === 'lonestar') {
+        submitBtn.textContent = 'Submit Payment Proof for Verification';
+      } else {
+        submitBtn.textContent = submitBtn.dataset.originalText || 'Proceed to Payment';
+      }
+    }
+  };
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', updateView);
+  });
+
+  updateView();
 };
 
 const createCheckoutSession = async (data) => {
@@ -472,6 +522,7 @@ const initOpportunityDetail = async () => {
       if (pmContainer) {
         pmContainer.style.display = pricingType === 'free' ? 'none' : 'block';
       }
+      bindPaymentMethodToggles(form);
       modal.classList.add('active');
     });
   }
@@ -481,28 +532,86 @@ const initOpportunityDetail = async () => {
   }
 
   if (form) {
+    bindPaymentMethodToggles(form);
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
+
+      const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value || 'stripe';
+
+      // Check Mobile Money (Orange or Lonestar)
+      if (pricingType !== 'free' && (paymentMethod === 'orange' || paymentMethod === 'lonestar')) {
+        const container = paymentMethod === 'orange'
+          ? form.querySelector('#orange-details')
+          : form.querySelector('#lonestar-details');
+        const fileInput = container ? container.querySelector('input[name="paymentProof"]') : null;
+        const file = fileInput && fileInput.files && fileInput.files[0];
+
+        if (!file) {
+          alert('Please upload a screenshot or receipt of your transaction before submitting.');
+          return;
+        }
+
+        submitBtn.textContent = 'Uploading Proof & Submitting...';
+        submitBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('name', form.elements.name.value);
+        formData.append('email', form.elements.email.value);
+        formData.append('phone', form.elements.phone.value);
+        formData.append('opportunityId', form.elements.opportunityId.value || opp.id || slug);
+        formData.append('paymentMethod', paymentMethod);
+        formData.append('paymentProof', file);
+
+        const txnRef = container ? container.querySelector('input[name="transactionReference"]')?.value : '';
+        if (txnRef) formData.append('transactionReference', txnRef);
+
+        try {
+          await registerOpportunityWithProof(formData);
+          const methodName = paymentMethod === 'orange' ? 'Orange Money' : 'Lonestar Cell MTN';
+          const accInfo = paymentMethod === 'orange'
+            ? 'Account Holder: <strong>Myean D Torgean</strong>'
+            : 'Number: <strong>+231880601584</strong> (Owner: <strong>Myean D Torgbean</strong>)';
+
+          form.innerHTML = `
+            <div style="text-align: center; padding: 25px 15px;">
+              <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 32px; border: 2px solid #a7f3d0;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <h3 style="color: #0f172a; margin-bottom: 12px; font-size: 20px;">Transaction Submitted for Verification</h3>
+              <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                Thank you, <strong>${form.elements.name.value}</strong>! Your payment screenshot for <strong>${methodName}</strong> has been uploaded successfully.
+              </p>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+                <p style="margin-bottom: 6px;"><strong>Status:</strong> <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Pending Verification</span></p>
+                <p style="margin-bottom: 6px;"><strong>Recipient:</strong> ${accInfo}</p>
+                <p style="margin-bottom: 0; color: #64748b;">We will review your transaction screenshot and send you a confirmation email / SMS shortly.</p>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="window.location.reload()" style="width: 100%;">Done</button>
+            </div>
+          `;
+          return;
+        } catch (err) {
+          alert(err.message || 'Failed to submit payment proof. Please try again.');
+          submitBtn.textContent = 'Submit Payment Proof for Verification';
+          submitBtn.disabled = false;
+          return;
+        }
+      }
+
+      // Card or Free flow
       submitBtn.textContent = pricingType === 'free' ? 'Submitting...' : 'Redirecting to secure checkout...';
       submitBtn.disabled = true;
 
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      if (pricingType !== 'free' && (data.paymentMethod === 'lonestar' || data.paymentMethod === 'orange')) {
-        alert('Mobile Money integration is coming soon! Please use Card for now.');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        return;
-      }
-
-
       try {
         if (pricingType === 'free') {
           await registerOpportunity(data);
-          form.innerHTML = '<div style="text-align: center; color: green;"><h3>Registration Successful!</h3><p>We will contact you shortly.</p></div>';
+          form.innerHTML = '<div style="text-align: center; color: green; padding: 20px;"><h3>Registration Successful!</h3><p>We will contact you shortly.</p><button class="btn btn-primary" onclick="window.location.reload()" style="margin-top: 15px;">Done</button></div>';
         } else {
           const session = await createCheckoutSession(data);
           window.location.assign(session.url);
@@ -663,6 +772,7 @@ document.addEventListener('click', async (e) => {
     
     titleEl.textContent = opp.title;
     oppIdInput.value = opp._id;
+    bindPaymentMethodToggles(form);
     modal.classList.add('active');
   } catch (err) {
     alert('Unable to load payment details. Please try again later.');
@@ -672,6 +782,8 @@ document.addEventListener('click', async (e) => {
 
 const quickPayForm = document.getElementById('register-form');
 if (quickPayForm && document.getElementById('register-modal-title')) {
+  bindPaymentMethodToggles(quickPayForm);
+
   quickPayForm.addEventListener('submit', async (e) => {
     // Only intercept if we are on a page where this wasn't already handled 
     // opportunity-detail.html handles its own form submit.
@@ -680,19 +792,75 @@ if (quickPayForm && document.getElementById('register-modal-title')) {
     e.preventDefault();
     const submitBtn = quickPayForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
+    const paymentMethod = quickPayForm.querySelector('input[name="paymentMethod"]:checked')?.value || 'stripe';
+
+    // Mobile Money flow (Orange or Lonestar)
+    if (paymentMethod === 'orange' || paymentMethod === 'lonestar') {
+      const container = paymentMethod === 'orange'
+        ? quickPayForm.querySelector('#orange-details')
+        : quickPayForm.querySelector('#lonestar-details');
+      const fileInput = container ? container.querySelector('input[name="paymentProof"]') : null;
+      const file = fileInput && fileInput.files && fileInput.files[0];
+
+      if (!file) {
+        alert('Please upload a screenshot or receipt of your transaction before submitting.');
+        return;
+      }
+
+      submitBtn.textContent = 'Uploading Proof & Submitting...';
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('name', quickPayForm.elements.name.value);
+      formData.append('email', quickPayForm.elements.email.value);
+      formData.append('phone', quickPayForm.elements.phone.value);
+      formData.append('opportunityId', quickPayForm.elements.opportunityId.value);
+      formData.append('paymentMethod', paymentMethod);
+      formData.append('paymentProof', file);
+
+      const txnRef = container ? container.querySelector('input[name="transactionReference"]')?.value : '';
+      if (txnRef) formData.append('transactionReference', txnRef);
+
+      try {
+        await registerOpportunityWithProof(formData);
+        const methodName = paymentMethod === 'orange' ? 'Orange Money' : 'Lonestar Cell MTN';
+        const accInfo = paymentMethod === 'orange'
+          ? 'Account Holder: <strong>Myean D Torgean</strong>'
+          : 'Number: <strong>+231880601584</strong> (Owner: <strong>Myean D Torgbean</strong>)';
+
+        quickPayForm.innerHTML = `
+          <div style="text-align: center; padding: 25px 15px;">
+            <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 32px; border: 2px solid #a7f3d0;">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 style="color: #0f172a; margin-bottom: 12px; font-size: 20px;">Transaction Submitted for Verification</h3>
+            <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+              Thank you, <strong>${quickPayForm.elements.name.value}</strong>! Your payment screenshot for <strong>${methodName}</strong> has been uploaded successfully.
+            </p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+              <p style="margin-bottom: 6px;"><strong>Status:</strong> <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Pending Verification</span></p>
+              <p style="margin-bottom: 6px;"><strong>Recipient:</strong> ${accInfo}</p>
+              <p style="margin-bottom: 0; color: #64748b;">Our administrator will verify your transaction screenshot and send you a confirmation email / SMS shortly.</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="window.location.reload()" style="width: 100%;">Done</button>
+          </div>
+        `;
+        return;
+      } catch (err) {
+        alert(err.message || 'Failed to submit payment proof. Please try again.');
+        submitBtn.textContent = 'Submit Payment Proof for Verification';
+        submitBtn.disabled = false;
+        return;
+      }
+    }
+
+    // Card (Stripe) flow
     submitBtn.textContent = 'Redirecting to secure checkout...';
     submitBtn.disabled = true;
 
     try {
       const formData = new FormData(quickPayForm);
       const data = Object.fromEntries(formData.entries());
-
-      if (data.paymentMethod === 'lonestar' || data.paymentMethod === 'orange') {
-        alert('Mobile Money integration is coming soon! Please use Card for now.');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        return;
-      }
 
       const session = await createCheckoutSession(data);
       if (session && session.url) {

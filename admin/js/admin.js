@@ -166,6 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (currentPath === "news.html") initNews();
   if (currentPath === "opportunities.html") initOpportunities();
   if (currentPath === "registrations.html") initRegistrations();
+  if (currentPath === "local-payments.html") initLocalPaymentsPage();
 });
 
 // ---- Page Specific Logic ----
@@ -910,7 +911,7 @@ async function loadRegistrations() {
     registrations.forEach((item) => {
       const tr = document.createElement("tr");
       const date = item.registeredAt || item.createdAt;
-      for (let index = 0; index < 8; index += 1) tr.insertCell();
+      for (let index = 0; index < 10; index += 1) tr.insertCell();
       tr.cells[0].textContent = item.name;
       tr.cells[1].textContent = item.email;
       tr.cells[2].textContent = item.phone;
@@ -938,20 +939,34 @@ async function loadRegistrations() {
         window.updateRegStatus(item._id, statusSelect.value),
       );
       tr.cells[5].appendChild(statusSelect);
-      tr.cells[6].textContent = item.paymentStatus === "paid"
+
+      // Cell 6: Payment Method
+      tr.cells[6].innerHTML = renderPaymentMethodBadge(item.paymentMethod);
+
+      // Cell 7: Payment Proof Screenshot
+      if (item.paymentProof) {
+        tr.cells[7].innerHTML = `<img src="${item.paymentProof}" alt="Proof" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;" title="Click to view full screenshot" onclick="window.viewProofImage('${item.paymentProof}', '${escapeHTML(item.name)}')">`;
+      } else {
+        tr.cells[7].textContent = "None";
+      }
+
+      // Cell 8: Payment Status
+      tr.cells[8].textContent = item.paymentStatus === "paid"
         ? `Paid (${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(item.amountPaid || 0))})`
         : item.paymentStatus === "pending"
           ? "Payment pending"
           : item.paymentStatus === "failed"
             ? "Payment failed"
             : "Not required";
+
+      // Cell 9: Actions
       const editButton = document.createElement("button");
       editButton.type = "button";
       editButton.className = "btn btn-sm btn-primary";
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
       editButton.setAttribute("aria-label", `Edit registration for ${item.name}`);
       editButton.addEventListener("click", () => editRegistration(item));
-      tr.cells[7].appendChild(editButton);
+      tr.cells[9].appendChild(editButton);
 
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
@@ -961,13 +976,13 @@ async function loadRegistrations() {
       deleteButton.addEventListener("click", () =>
         window.deleteRegistration(item._id, item.name),
       );
-      tr.cells[7].appendChild(deleteButton);
+      tr.cells[9].appendChild(deleteButton);
       tbody.appendChild(tr);
     });
     if (!registrations.length) {
       const row = tbody.insertRow();
       const cell = row.insertCell();
-      cell.colSpan = 8;
+      cell.colSpan = 10;
       cell.textContent = "No registrations found.";
     }
   } catch (e) {}
@@ -1012,5 +1027,224 @@ window.deleteRegistration = async function (id, name) {
     await loadRegistrations();
   } catch (error) {
     // fetchAPI displays request errors in a toast.
+  }
+};
+
+function renderPaymentMethodBadge(method) {
+  if (method === 'orange') {
+    return `<span style="background-color: #ffedd5; color: #c2410c; border: 1px solid #fdba74; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600;"><i class="fas fa-qrcode"></i> Orange</span>`;
+  }
+  if (method === 'lonestar') {
+    return `<span style="background-color: #fef9c3; color: #854d0e; border: 1px solid #fde047; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600;"><i class="fas fa-mobile-alt"></i> Lonestar</span>`;
+  }
+  if (method === 'free') {
+    return `<span style="background-color: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 4px; font-size: 11px;">Free</span>`;
+  }
+  return `<span style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600;"><i class="fas fa-credit-card"></i> Card</span>`;
+}
+
+window.viewProofImage = function (url, name) {
+  if (!url) return;
+  const modal = document.getElementById("proofModal");
+  if (!modal) {
+    window.open(url, "_blank");
+    return;
+  }
+  const img = document.getElementById("proofModalImg");
+  const title = document.getElementById("proofModalTitle");
+  const downloadBtn = document.getElementById("proofDownloadBtn");
+  if (img) img.src = url;
+  if (title) title.textContent = `Screenshot Proof: ${name || "User"}`;
+  if (downloadBtn) downloadBtn.href = url;
+  openModal("proofModal");
+};
+
+// ---- Local Payments Management (Orange & Lonestar) ----
+async function initLocalPaymentsPage() {
+  const searchInput = document.getElementById("localSearchInput");
+  const methodFilter = document.getElementById("localMethodFilter");
+  const statusFilter = document.getElementById("localStatusFilter");
+  const refreshBtn = document.getElementById("refreshLocalPaymentsBtn");
+
+  if (refreshBtn) refreshBtn.addEventListener("click", () => loadLocalPayments());
+  if (methodFilter) methodFilter.addEventListener("change", () => loadLocalPayments());
+  if (statusFilter) statusFilter.addEventListener("change", () => loadLocalPayments());
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      clearTimeout(window.localSearchTimeout);
+      window.localSearchTimeout = setTimeout(() => loadLocalPayments(), 400);
+    });
+  }
+
+  await loadLocalPayments();
+}
+
+async function loadLocalPayments() {
+  const tbody = document.getElementById("localPaymentsTableBody");
+  if (!tbody) return;
+
+  const search = document.getElementById("localSearchInput")?.value || "";
+  const method = document.getElementById("localMethodFilter")?.value || "";
+  const status = document.getElementById("localStatusFilter")?.value || "";
+
+  const queryParams = new URLSearchParams({
+    localOnly: "true",
+    limit: "100"
+  });
+  if (search.trim()) queryParams.append("search", search.trim());
+  if (method) queryParams.append("paymentMethod", method);
+  if (status) queryParams.append("status", status);
+
+  try {
+    const data = await fetchAPI(`/registrations?${queryParams.toString()}`);
+    if (!data) return;
+
+    tbody.innerHTML = "";
+    const registrations = data.registrations || data || [];
+
+    let totalCount = registrations.length;
+    let pendingCount = 0;
+    let approvedCount = 0;
+
+    registrations.forEach((item) => {
+      if (item.status === "pending" || item.paymentStatus === "pending") pendingCount++;
+      if (item.status === "confirmed" && item.paymentStatus === "paid") approvedCount++;
+
+      const tr = document.createElement("tr");
+      const date = item.registeredAt || item.createdAt;
+
+      const userCell = `<strong>${escapeHTML(item.name)}</strong>`;
+      const contactCell = `<div style="font-size: 13px;"><div><i class="fas fa-phone-alt"></i> ${escapeHTML(item.phone)}</div><div style="color: #64748b;"><i class="fas fa-envelope"></i> ${escapeHTML(item.email)}</div></div>`;
+      const oppCell = item.opportunity ? `<div><strong>${escapeHTML(item.opportunity.title)}</strong></div><span style="font-size: 12px; color: #64748b;">${escapeHTML(item.opportunity.type)}</span>` : "N/A";
+      const methodBadge = renderPaymentMethodBadge(item.paymentMethod);
+      const accInfo = item.paymentMethod === "orange"
+        ? `<div style="font-size: 12px;"><strong>Myean D Torgean</strong><br><span style="color: #64748b;">(QR Code)</span></div>`
+        : `<div style="font-size: 12px;"><strong>+231880601584</strong><br><span style="color: #64748b;">(Myean D Torgbean)</span></div>`;
+
+      const proofCell = item.paymentProof
+        ? `<img src="${item.paymentProof}" alt="Proof" class="proof-thumbnail" onclick="window.showDetailedProofModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">`
+        : `<span style="color: #94a3b8; font-size: 12px;">No file</span>`;
+
+      const dateStr = date ? new Date(date).toLocaleString() : "";
+      const statusBadge = item.paymentStatus === "paid"
+        ? `<span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;"><i class="fas fa-check-circle"></i> Paid & Confirmed</span>`
+        : item.status === "cancelled" || item.paymentStatus === "failed"
+          ? `<span class="badge" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;"><i class="fas fa-times-circle"></i> Rejected</span>`
+          : `<span class="badge" style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a;"><i class="fas fa-clock"></i> Pending Verification</span>`;
+
+      const actionsCell = `
+        <div style="display: flex; gap: 6px;">
+          ${item.paymentStatus !== "paid" ? `
+            <button type="button" class="btn btn-sm btn-primary" title="Approve & Verify Payment" onclick="window.verifyPaymentPrompt('${item._id}', 'approve')"><i class="fas fa-check"></i> Approve</button>
+            <button type="button" class="btn btn-sm btn-danger" title="Reject Payment" onclick="window.verifyPaymentPrompt('${item._id}', 'reject')"><i class="fas fa-times"></i></button>
+          ` : `
+            <button type="button" class="btn btn-sm btn-outline" title="Re-open Verification" onclick="window.verifyPaymentPrompt('${item._id}', 'reject')"><i class="fas fa-undo"></i></button>
+          `}
+          <button type="button" class="btn btn-sm btn-danger" title="Delete Registration" onclick="window.deleteRegistration('${item._id}', '${escapeHTML(item.name)}')"><i class="fas fa-trash"></i></button>
+        </div>
+      `;
+
+      tr.innerHTML = `
+        <td>${userCell}</td>
+        <td>${contactCell}</td>
+        <td>${oppCell}</td>
+        <td>${methodBadge}</td>
+        <td>${accInfo}</td>
+        <td style="text-align: center;">${proofCell}</td>
+        <td style="font-size: 13px;">${dateStr}</td>
+        <td>${statusBadge}</td>
+        <td>${actionsCell}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    if (!registrations.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: #64748b;">No local mobile money payments found.</td></tr>`;
+    }
+
+    const totalEl = document.getElementById("totalLocalCount");
+    const pendingEl = document.getElementById("pendingLocalCount");
+    const approvedEl = document.getElementById("approvedLocalCount");
+    if (totalEl) totalEl.textContent = totalCount;
+    if (pendingEl) pendingEl.textContent = pendingCount;
+    if (approvedEl) approvedEl.textContent = approvedCount;
+
+  } catch (err) {
+    showToast(err.message || "Failed to load local payments", "error");
+  }
+}
+
+window.showDetailedProofModal = function (item) {
+  const modal = document.getElementById("proofModal");
+  if (!modal) {
+    if (item.paymentProof) window.open(item.paymentProof, "_blank");
+    return;
+  }
+
+  document.getElementById("proofModalTitle").textContent = `Proof of Payment: ${item.name}`;
+  const img = document.getElementById("proofModalImg");
+  img.src = item.paymentProof || "";
+
+  const downloadBtn = document.getElementById("proofDownloadBtn");
+  if (downloadBtn) downloadBtn.href = item.paymentProof || "#";
+
+  const detailsEl = document.getElementById("proofDetails");
+  if (detailsEl) {
+    const methodLabel = item.paymentMethod === 'orange' ? 'Orange Money (Account: Myean D Torgean)' : 'Lonestar Cell MTN (Number: +231880601584, Owner: Myean D Torgbean)';
+    detailsEl.innerHTML = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+        <div><strong>Name:</strong> ${escapeHTML(item.name)}</div>
+        <div><strong>Phone:</strong> ${escapeHTML(item.phone)}</div>
+        <div><strong>Email:</strong> ${escapeHTML(item.email)}</div>
+        <div><strong>Method:</strong> ${methodLabel}</div>
+        ${item.transactionReference ? `<div><strong>Ref ID:</strong> <code>${escapeHTML(item.transactionReference)}</code></div>` : ''}
+        <div><strong>Status:</strong> ${item.paymentStatus === 'paid' ? '<span style="color: #10b981; font-weight: bold;">Verified & Paid</span>' : '<span style="color: #d97706; font-weight: bold;">Pending Verification</span>'}</div>
+      </div>
+    `;
+  }
+
+  const actionsEl = document.getElementById("proofModalActions");
+  if (actionsEl) {
+    actionsEl.innerHTML = `
+      <button type="button" class="btn btn-outline close-modal" style="margin-right: 8px;">Close</button>
+      ${item.paymentStatus !== "paid" ? `
+        <button type="button" class="btn btn-danger" style="margin-right: 8px;" onclick="window.verifyPaymentPrompt('${item._id}', 'reject')"><i class="fas fa-times"></i> Reject</button>
+        <button type="button" class="btn btn-primary" onclick="window.verifyPaymentPrompt('${item._id}', 'approve')"><i class="fas fa-check"></i> Approve & Verify</button>
+      ` : `
+        <span style="color: #10b981; font-weight: 600; margin-left: 10px;"><i class="fas fa-check-circle"></i> Verified</span>
+      `}
+    `;
+  }
+
+  openModal("proofModal");
+};
+
+window.verifyPaymentPrompt = async function (id, action) {
+  const confirmMsg = action === "approve"
+    ? "Are you sure you want to approve this payment and confirm the registration?"
+    : "Are you sure you want to reject this payment?";
+
+  if (!window.confirm(confirmMsg)) return;
+
+  try {
+    const res = await fetchAPI(`/registrations/${id}/verify-payment`, {
+      method: "PUT",
+      body: JSON.stringify({ action })
+    });
+
+    if (res) {
+      showToast(action === "approve" ? "Payment verified and registration confirmed!" : "Payment rejected.");
+      closeModal("proofModal");
+      if (document.getElementById("localPaymentsTableBody")) {
+        await loadLocalPayments();
+      }
+      if (document.getElementById("regTableBody")) {
+        await loadRegistrations();
+      }
+    }
+  } catch (err) {
+    showToast(err.message || "Failed to update payment status", "error");
   }
 };

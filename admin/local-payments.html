@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Payments - Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .badge-orange {
+            background-color: #ffedd5;
+            color: #c2410c;
+            border: 1px solid #fdba74;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .badge-lonestar {
+            background-color: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde047;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .proof-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .proof-thumbnail:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card-mini {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .stat-card-mini.pending {
+            border-left-color: #f59e0b;
+        }
+        
+        .stat-card-mini.approved {
+            border-left-color: #10b981;
+        }
+        
+        .stat-card-mini h3 {
+            font-size: 13px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card-mini .stat-num {
+            font-size: 26px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+        
+        .modal-proof-img {
+            max-width: 100%;
+            max-height: 75vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">Admin Panel</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="news.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="opportunities.html"><i class="fas fa-briefcase"></i> Opportunities</a></li>
+                <li><a href="registrations.html"><i class="fas fa-users"></i> Registrations</a></li>
+                <li><a href="local-payments.html" class="active"><i class="fas fa-money-bill-wave"></i> Local Payments</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Local Payments Verification</h1>
+                <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Verify transaction screenshots for Orange Money and Lonestar Cell MTN local payments.</p>
+            </div>
+            <div>
+                <button class="btn btn-outline" id="refreshLocalPaymentsBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+
+        <div class="stat-cards-grid">
+            <div class="stat-card-mini">
+                <h3>Total Local Payments</h3>
+                <div class="stat-num" id="totalLocalCount">0</div>
+            </div>
+            <div class="stat-card-mini pending">
+                <h3>Pending Verification</h3>
+                <div class="stat-num" id="pendingLocalCount">0</div>
+            </div>
+            <div class="stat-card-mini approved">
+                <h3>Approved & Verified</h3>
+                <div class="stat-num" id="approvedLocalCount">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="registration-filters" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="search" id="localSearchInput" class="form-control" style="flex: 2; min-width: 200px;" placeholder="Search name, phone, email, or ref..." aria-label="Search local payments">
+                    <select id="localMethodFilter" class="form-control" style="flex: 1; min-width: 150px;">
+                        <option value="">All Mobile Methods</option>
+                        <option value="orange">Orange Money</option>
+                        <option value="lonestar">Lonestar MTN</option>
+                    </select>
+                    <select id="localStatusFilter" class="form-control" style="flex: 1; min-width: 150px;">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending Verification</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="cancelled">Cancelled / Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Contact</th>
+                            <th>Opportunity / Event</th>
+                            <th>Method</th>
+                            <th>Account Info</th>
+                            <th>Transaction Screenshot</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="localPaymentsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Screenshot Preview Modal -->
+    <div class="modal" id="proofModal">
+        <div class="modal-content" style="max-width: 750px;">
+            <div class="modal-header">
+                <h3 id="proofModalTitle">Transaction Screenshot Proof</h3>
+                <button type="button" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div id="proofDetails" style="margin-bottom: 15px; font-size: 14px; text-align: left; background: #f8fafc; padding: 12px; border-radius: 6px;"></div>
+                <img id="proofModalImg" src="" alt="Payment Proof" class="modal-proof-img">
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between;">
+                <a id="proofDownloadBtn" href="#" target="_blank" class="btn btn-outline"><i class="fas fa-external-link-alt"></i> Open Full Image</a>
+                <div id="proofModalActions">
+                    <button type="button" class="btn btn-outline close-modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof initLocalPaymentsPage === "function") {
+                initLocalPaymentsPage();
+            }
+        });
+    </script>
+</body>
+
+</html>
