@@ -310,11 +310,11 @@ header {
 }
 
 :root {
-  --product-red: #dc2626;
-  --product-red-light: #ef4444;
-  --product-red-dark: #b91c1c;
-  --product-red-gradient: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
-  --product-red-glow: rgba(220, 38, 38, 0.3);
+  --product-red: #0284c7;
+  --product-red-light: #06b6d4;
+  --product-red-dark: #0e7490;
+  --product-red-gradient: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  --product-red-glow: rgba(2, 132, 199, 0.3);
 }
 
 .products-grid {
@@ -547,7 +547,7 @@ header {
 }
 
 .products-contact-card {
-  background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%);
+  background: linear-gradient(135deg, #e0f7fa 0%, #f0f9ff 100%);
   border: 2px solid rgba(220, 38, 38, 0.2);
   border-radius: 16px;
   padding: 36px;
@@ -686,14 +686,14 @@ a:hover {
 
 /* Red accent for category badges */
 .card-category {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: #0e7490;
+  background: #e0f7fa;
   border-left-color: var(--product-red-light);
 }
 
 /* Red accent for breaking news */
 .breaking-news {
-  background: linear-gradient(90deg, #b91c1c 0%, #dc2626 100%);
+  background: linear-gradient(90deg, #0284c7 0%, #06b6d4 100%);
 }
 
 /* Red accent for nav links */
