@@ -503,7 +503,7 @@ const initCategory = async () => {
   const pageTitle = regionNames[region] || categoryName;
   const catTitle = document.getElementById('category-title');
   const isProductCategory = category?.toLowerCase() === 'product' || category?.toLowerCase() === 'products';
-  if (catTitle) catTitle.textContent = isProductCategory ? pageTitle : `${pageTitle} News`;
+  if (catTitle) catTitle.textContent = isProductCategory ? pageTitle : /news$/i.test(pageTitle) ? pageTitle : `${pageTitle} News`;
   const breadcrumb = document.getElementById('category-breadcrumb');
   if (breadcrumb) breadcrumb.textContent = pageTitle;
   const regionLinks = document.getElementById('region-links');
