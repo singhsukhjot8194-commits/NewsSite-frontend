@@ -165,25 +165,25 @@ header {
 /* Breaking News Ticker */
 
 .breaking-news {
-  background: linear-gradient(90deg, #0284c7 0%, #0369a1 100%);
+  background: linear-gradient(90deg, #b91c1c 0%, #dc2626 100%);
   color: var(--white);
   padding: 9px 0;
   display: flex;
   align-items: center;
-  border-bottom: 2px solid var(--gold-light);
+  border-bottom: 2px solid var(--product-red-light);
 }
 
 .breaking-label {
   font-weight: 800;
-  background: var(--gold-gradient);
-  color: #0c2333;
+  background: var(--product-red-gradient);
+  color: var(--white);
   padding: 3px 12px;
   border-radius: 4px;
   margin-right: 15px;
   white-space: nowrap;
   font-size: 11px;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+  box-shadow: 0 2px 6px var(--product-red-glow);
 }
 
 .ticker-wrap {
