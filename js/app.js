@@ -12,8 +12,9 @@ const API_BASE = window.location.protocol === 'file:'
 
 const getNewsImageUrl = (image) => {
   if (!image) return 'https://via.placeholder.com/400x200';
+  if (image.startsWith('http://') || image.startsWith('https://')) return image;
   const baseUrl = isLocalFrontend ? localApiOrigin : PRODUCTION_BACKEND_URL;
-  return image.startsWith('/') ? `${baseUrl}${image}` : image;
+  return image.startsWith('/') ? `${baseUrl}${image}` : `${baseUrl}/${image}`;
 };
 
 // Product Data
@@ -329,35 +330,31 @@ const createOpportunityCard = (opp) => {
 // Product Render Function
 const createProductCard = (product) => {
   const hasMultipleImages = product.images && product.images.length > 1;
-  const baseUrl = isLocalFrontend ? localApiOrigin : PRODUCTION_BACKEND_URL;
   
   let imageHtml;
   if (hasMultipleImages) {
     imageHtml = `
       <div class="product-gallery" data-product-id="${product.id}">
         ${product.images.map((img, index) => {
-          const imgUrl = `${baseUrl}/${img}`;
           return `
             <div class="gallery-image-wrapper ${index === 0 ? 'active' : ''}">
-              <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy">
+              <img src="${img}" alt="${product.name}" class="product-img" loading="lazy">
             </div>
           `;
         }).join('')}
         <div class="gallery-nav">
           ${product.images.map((img, index) => {
-            const imgUrl = `${baseUrl}/${img}`;
             const label = ['Blue', 'Black', 'Blue & Gold'][index] || `#${index + 1}`;
-            return `<button type="button" class="gallery-dot ${index === 0 ? 'active' : ''}" data-index="${index}" data-full="${imgUrl}" aria-label="${label} Pen"><img src="${imgUrl}" alt="${label} Pen" class="gallery-thumb"></button>`;
+            return `<button type="button" class="gallery-dot ${index === 0 ? 'active' : ''}" data-index="${index}" data-full="${img}" aria-label="${label} Pen"><img src="${img}" alt="${label} Pen" class="gallery-thumb"></button>`;
           }).join('')}
         </div>
         <span class="product-category-badge">${product.category}</span>
       </div>
     `;
   } else {
-    const imageUrl = `${baseUrl}/${product.image}`;
     imageHtml = `
       <div class="product-image-wrapper">
-        <img src="${imageUrl}" alt="${product.name}" class="product-img" loading="lazy">
+        <img src="${product.image}" alt="${product.name}" class="product-img" loading="lazy">
         <span class="product-category-badge">${product.category}</span>
       </div>
     `;
