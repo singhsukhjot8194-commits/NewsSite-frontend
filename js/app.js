@@ -118,6 +118,55 @@ const formatRegion = (region) => region
   ? region.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
   : '';
 
+// XSS hardening: allow only a safe subset of HTML for user/author-controlled content
+const sanitizeHTML = (html) => {
+  if (typeof html !== 'string' || !html.trim()) return '';
+  const div = document.createElement('div');
+  div.textContent = html;
+  let safe = div.innerHTML;
+  safe = safe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  // Re-allow a minimal safe set of structural tags only (no attributes, no scripts)
+  safe = safe
+    .replace(/&lt;p&gt;/g, '<p>')
+    .replace(/&lt;\/p&gt;/g, '</p>')
+    .replace(/&lt;br\s*\/?&gt;/gi, '<br>')
+    .replace(/&lt;b&gt;/g, '<b>')
+    .replace(/&lt;\/b&gt;/g, '</b>')
+    .replace(/&lt;strong&gt;/g, '<strong>')
+    .replace(/&lt;\/strong&gt;/g, '</strong>')
+    .replace(/&lt;i&gt;/g, '<i>')
+    .replace(/&lt;\/i&gt;/g, '</i>')
+    .replace(/&lt;em&gt;/g, '<em>')
+    .replace(/&lt;\/em&gt;/g, '</em>')
+    .replace(/&lt;ul&gt;/g, '<ul>')
+    .replace(/&lt;\/ul&gt;/g, '</ul>')
+    .replace(/&lt;ol&gt;/g, '<ol>')
+    .replace(/&lt;\/ol&gt;/g, '</ol>')
+    .replace(/&lt;li&gt;/g, '<li>')
+    .replace(/&lt;\/li&gt;/g, '</li>')
+    .replace(/&lt;h([1-6])&gt;/g, '<h$1>')
+    .replace(/&lt;\/h([1-6])&gt;/g, '</h$1>')
+    .replace(/&lt;blockquote&gt;/g, '<blockquote>')
+    .replace(/&lt;\/blockquote&gt;/g, '</blockquote>');
+  return safe;
+};
+
+const escapeAttr = (value) => {
+  if (typeof value !== 'string') return String(value);
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
+
 const showLoader = (containerId) => {
   const container = document.getElementById(containerId);
   if (container) {
@@ -262,18 +311,18 @@ const formatUsd = (amount) => new Intl.NumberFormat('en-US', {
 // Render Functions
 const createNewsCard = (news) => {
   const categoryLabel = news.region
-    ? `${news.category || 'Africa'} · ${formatRegion(news.region)}`
-    : news.category || 'News';
+    ? `${escapeAttr(news.category || 'Africa')} · ${formatRegion(news.region)}`
+    : escapeAttr(news.category || 'News');
   return `
     <article class="card">
-      <a href="article.html?slug=${news.slug || news.id}">
-        <img src="${getNewsImageUrl(news.image)}" alt="${news.title}" class="card-img">
+      <a href="article.html?slug=${escapeAttr(news.slug || news.id)}">
+        <img src="${getNewsImageUrl(news.image)}" alt="${escapeAttr(news.title)}" class="card-img">
         <div class="card-content">
           <span class="card-category">${categoryLabel}</span>
-          <h3 class="card-title">${news.title}</h3>
+          <h3 class="card-title">${escapeAttr(news.title)}</h3>
           <div class="card-meta">
             <span>${formatDate(news.date || news.createdAt || new Date())}</span>
-            <span>${news.author || 'Admin'}</span>
+            <span>${escapeAttr(news.author || 'Admin')}</span>
           </div>
         </div>
       </a>
@@ -283,10 +332,10 @@ const createNewsCard = (news) => {
 
 const createLatestNewsItem = (news) => `
   <article class="latest-item">
-    <a href="article.html?slug=${news.slug || news.id}">
+    <a href="article.html?slug=${escapeAttr(news.slug || news.id)}">
       <img src="${getNewsImageUrl(news.image)}" alt="" class="latest-thumb">
       <span class="latest-item-copy">
-        <strong>${news.title}</strong>
+        <strong>${escapeAttr(news.title)}</strong>
         <small>${formatDate(news.date || news.createdAt || new Date())}</small>
       </span>
     </a>
@@ -303,25 +352,25 @@ const createOpportunityCard = (opp) => {
     : pricingType === 'special'
       ? 'Pay & Register'
       : 'Register';
-  const description = opp.shortDesc || opp.fullDetails || '';
+  const description = sanitizeHTML(opp.shortDesc || opp.fullDetails || '');
   const opportunityId = opp._id || opp.id || opp.slug;
 
   return `
     <article class="card">
-      <img src="${opp.banner || 'https://via.placeholder.com/400x200'}" alt="${opp.title}" class="card-img">
+      <img src="${opp.banner || 'https://via.placeholder.com/400x200'}" alt="${escapeAttr(opp.title)}" class="card-img">
       <div class="card-content">
         <div class="opp-badges">
-          <span class="badge badge-mode">${opp.type || 'Opportunity'}</span>
-          <span class="badge badge-mode">${opp.status || 'upcoming'}</span>
-          <span class="badge badge-mode">${opp.mode || 'Online'}</span>
+          <span class="badge badge-mode">${escapeAttr(opp.type || 'Opportunity')}</span>
+          <span class="badge badge-mode">${escapeAttr(opp.status || 'upcoming')}</span>
+          <span class="badge badge-mode">${escapeAttr(opp.mode || 'Online')}</span>
           <span class="badge badge-fee">${fee}</span>
         </div>
-        <h3 class="card-title">${opp.title}</h3>
+        <h3 class="card-title">${escapeAttr(opp.title)}</h3>
         <p style="margin-bottom: 15px; font-size: 14px; color: var(--text-light)">${description}</p>
         <div class="card-meta" style="margin-bottom: 15px;">
           <span>📅 ${formatDate(opp.date || new Date())}</span>
         </div>
-        <a href="opportunity-detail.html?slug=${opportunityId}" class="btn btn-primary" style="display: block; width: 100%;">${actionLabel}</a>
+        <a href="opportunity-detail.html?slug=${escapeAttr(opportunityId)}" class="btn btn-primary" style="display: block; width: 100%;">${actionLabel}</a>
       </div>
     </article>
   `;
@@ -440,7 +489,7 @@ const initArticle = async () => {
 
   document.title = `${article.title} - The African Diplomat`;
   const articleImage = article.image
-    ? `<img src="${getNewsImageUrl(article.image)}" alt="${article.title}" class="article-image">`
+    ? `<img src="${getNewsImageUrl(article.image)}" alt="${escapeAttr(article.title)}" class="article-image">`
     : article.video
       ? ""
       : '<img src="https://via.placeholder.com/800x400" alt="" class="article-image">';
@@ -450,10 +499,10 @@ const initArticle = async () => {
 
   container.innerHTML = `
     <div class="article-header">
-      <span class="card-category" style="font-size: 14px;">${article.category || 'News'}</span>
-      <h1 class="article-title">${article.title}</h1>
+      <span class="card-category" style="font-size: 14px;">${escapeAttr(article.category || 'News')}</span>
+      <h1 class="article-title">${escapeAttr(article.title)}</h1>
       <div class="article-meta">
-        <span>By ${article.author || 'Admin'}</span>
+        <span>By ${escapeAttr(article.author || 'Admin')}</span>
         <span>•</span>
         <span>${formatDate(article.date || article.createdAt || new Date())}</span>
       </div>
@@ -461,7 +510,7 @@ const initArticle = async () => {
     ${articleImage}
     ${articleVideo}
     <div class="article-content">
-      ${article.content || '<p>Content goes here...</p>'}
+      ${sanitizeHTML(article.content) || '<p>Content goes here...</p>'}
     </div>
   `;
 
@@ -682,28 +731,28 @@ const initOpportunityDetail = async () => {
     : `${formatUsd(opp.fees)}${pricingType === 'subscription' ? ' / 3 months' : ' one-time'}`;
   const paymentCancelled = getUrlParam('payment') === 'cancelled';
   container.innerHTML = `
-    <img src="${opp.banner || 'https://via.placeholder.com/800x400'}" alt="${opp.title}" class="article-image">
+    <img src="${opp.banner || 'https://via.placeholder.com/800x400'}" alt="${escapeAttr(opp.title)}" class="article-image">
     <div class="article-header">
       <div class="opp-badges" style="margin-bottom: 15px;">
-        <span class="badge badge-mode">${opp.mode || 'Online'}</span>
+        <span class="badge badge-mode">${escapeAttr(opp.mode || 'Online')}</span>
         <span class="badge badge-fee">${price}</span>
       </div>
       ${paymentCancelled ? '<p role="status" style="margin-bottom: 16px;">Payment was cancelled. You can try again whenever you are ready.</p>' : ''}
-      <h1 class="article-title">${opp.title}</h1>
+      <h1 class="article-title">${escapeAttr(opp.title)}</h1>
       <div class="article-meta" style="flex-direction: column; gap: 5px; font-size: 16px;">
         <div><strong>Date:</strong> ${formatDate(opp.date || new Date())}</div>
-        <div><strong>Time:</strong> ${opp.time || 'TBA'}</div>
-        <div><strong>Duration:</strong> ${opp.duration || 'N/A'}</div>
-        <div><strong>Location:</strong> ${opp.location || 'Online'}</div>
+        <div><strong>Time:</strong> ${escapeAttr(opp.time || 'TBA')}</div>
+        <div><strong>Duration:</strong> ${escapeAttr(opp.duration || 'N/A')}</div>
+        <div><strong>Location:</strong> ${escapeAttr(opp.location || 'Online')}</div>
       </div>
     </div>
     
     <div class="article-content" style="margin-bottom: 30px;">
       <h3>Description</h3>
-      <p>${opp.fullDetails || opp.shortDesc || 'No detailed description available.'}</p>
+      <p>${sanitizeHTML(opp.fullDetails || opp.shortDesc || 'No detailed description available.')}</p>
       
       <h3 style="margin-top: 20px;">Eligibility</h3>
-      <p>${opp.eligibility || 'Open to all'}</p>
+      <p>${escapeAttr(opp.eligibility || 'Open to all')}</p>
     ${opp.curriculum && opp.curriculum.length ? `
       <div class="course-curriculum-overview" style="margin-top: 30px; margin-bottom: 30px; background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
         <h3 style="font-size: 20px; color: var(--primary-color); margin-bottom: 15px;"><i class="fas fa-graduation-cap" style="color: var(--accent-color);"></i> Course Curriculum (${opp.curriculum.length} Modules)</h3>
@@ -711,8 +760,8 @@ const initOpportunityDetail = async () => {
           ${opp.curriculum.map((topic, i) => `
             <div style="padding: 12px 16px; background: #f8fafc; border-radius: 6px; border-left: 3px solid var(--accent-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <div>
-                <strong>Module ${topic.order || (i + 1)}: ${topic.title}</strong>
-                ${topic.summary ? `<p style="font-size: 13px; color: #64748b; margin-top: 4px;">${topic.summary}</p>` : ''}
+                <strong>Module ${topic.order || (i + 1)}: ${escapeAttr(topic.title || '')}</strong>
+                ${topic.summary ? `<p style="font-size: 13px; color: #64748b; margin-top: 4px;">${sanitizeHTML(topic.summary)}</p>` : ''}
               </div>
               <span style="font-size: 12px; color: #64748b; background: #e2e8f0; padding: 3px 8px; border-radius: 10px;"><i class="fas fa-lock"></i> Enrolled Only</span>
             </div>
