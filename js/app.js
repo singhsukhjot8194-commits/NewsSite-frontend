@@ -16,6 +16,92 @@ const getNewsImageUrl = (image) => {
   return image.startsWith('/') ? `${baseUrl}${image}` : image;
 };
 
+// Product Data
+const products = [
+  {
+    id: 1,
+    name: "Blue T-Shirt",
+    description: "Premium quality blue cotton t-shirt with The African Diplomat branding. Comfortable, durable, and perfect for everyday wear.",
+    image: "products/01_blue_tshirt_HD.png",
+    category: "Clothing"
+  },
+  {
+    id: 2,
+    name: "White T-Shirt",
+    description: "Classic white t-shirt featuring our distinctive logo. Made from 100% organic cotton for superior comfort.",
+    image: "products/02_white_tshirt_HD.png",
+    category: "Clothing"
+  },
+  {
+    id: 3,
+    name: "Navy Varsity Jacket",
+    description: "Stylish navy varsity jacket with embroidered logo. Perfect for cooler weather and making a statement.",
+    image: "products/03_navy_varisty_jacket_HD.png",
+    category: "Clothing"
+  },
+  {
+    id: 4,
+    name: "Black Hoodie",
+    description: "Cozy black hoodie with front pocket and adjustable hood. Features subtle branding for a professional look.",
+    image: "products/04_black_hoodie_HD.png",
+    category: "Clothing"
+  },
+  {
+    id: 5,
+    name: "Navy Cap",
+    description: "Adjustable navy baseball cap with embroidered logo. One size fits all, perfect for sunny days.",
+    image: "products/05_navy_cap_HD.png",
+    category: "Headwear"
+  },
+  {
+    id: 6,
+    name: "Black Backpack",
+    description: "Durable black backpack with multiple compartments. Ideal for work, travel, or daily commute.",
+    image: "products/06_black_backpack_HD.png",
+    category: "Accessories"
+  },
+  {
+    id: 7,
+    name: "Black Briefcase",
+    description: "Professional black briefcase with laptop compartment. Sleek design for the modern diplomat.",
+    image: "products/07_black_briefcase_HD.png",
+    category: "Accessories"
+  },
+  {
+    id: 8,
+    name: "Blue Mug",
+    description: "Ceramic blue mug with logo. Perfect for your morning coffee or tea. Dishwasher and microwave safe.",
+    image: "products/08_blue_mug_HD.png",
+    category: "Drinkware"
+  },
+  {
+    id: 9,
+    name: "White Mug",
+    description: "Elegant white ceramic mug featuring our branding. A great addition to your office or home.",
+    image: "products/09_white_mug_HD.png",
+    category: "Drinkware"
+  },
+  {
+    id: 10,
+    name: "Branded Pens Collection",
+    description: "Premium collection of three elegant branded pens - blue, black, and blue-gold. Perfect for signing important documents, daily use, or as thoughtful gifts for colleagues and dignitaries.",
+    image: "products/10_blue_branded_pen_HD.png",
+    images: [
+      "products/10_blue_branded_pen_HD.png",
+      "products/11_black_branded_pen_HD.png",
+      "products/12_blue_gold_branded_pen_HD.png"
+    ],
+    category: "Stationery"
+  },
+  {
+    id: 11,
+    name: "Blue Gold Tie",
+    description: "Sophisticated blue and gold patterned tie. Silk blend for a premium feel.",
+    image: "products/14_blue_gold_tie_HD.png",
+    category: "Accessories"
+  }
+];
+
 // Utilities
 const getUrlParam = (param) => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -240,6 +326,57 @@ const createOpportunityCard = (opp) => {
   `;
 };
 
+// Product Render Function
+const createProductCard = (product) => {
+  const hasMultipleImages = product.images && product.images.length > 1;
+  const baseUrl = isLocalFrontend ? localApiOrigin : PRODUCTION_BACKEND_URL;
+  
+  let imageHtml;
+  if (hasMultipleImages) {
+    imageHtml = `
+      <div class="product-gallery" data-product-id="${product.id}">
+        ${product.images.map((img, index) => {
+          const imgUrl = `${baseUrl}/${img}`;
+          return `
+            <div class="gallery-image-wrapper ${index === 0 ? 'active' : ''}">
+              <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy">
+            </div>
+          `;
+        }).join('')}
+        <div class="gallery-nav">
+          ${product.images.map((img, index) => {
+            const imgUrl = `${baseUrl}/${img}`;
+            const label = ['Blue', 'Black', 'Blue & Gold'][index] || `#${index + 1}`;
+            return `<button type="button" class="gallery-dot ${index === 0 ? 'active' : ''}" data-index="${index}" data-full="${imgUrl}" aria-label="${label} Pen"><img src="${imgUrl}" alt="${label} Pen" class="gallery-thumb"></button>`;
+          }).join('')}
+        </div>
+        <span class="product-category-badge">${product.category}</span>
+      </div>
+    `;
+  } else {
+    const imageUrl = `${baseUrl}/${product.image}`;
+    imageHtml = `
+      <div class="product-image-wrapper">
+        <img src="${imageUrl}" alt="${product.name}" class="product-img" loading="lazy">
+        <span class="product-category-badge">${product.category}</span>
+      </div>
+    `;
+  }
+  
+  return `
+    <article class="product-card">
+      ${imageHtml}
+      <div class="product-content">
+        <h3 class="product-title">${product.name}</h3>
+        <p class="product-description">${product.description}</p>
+        <div class="product-action">
+          <button class="btn btn-product" data-product-id="${product.id}" data-product-name="${product.name}">Order Now - WhatsApp</button>
+        </div>
+      </div>
+    </article>
+  `;
+};
+
 // Page Initializers
 const initHome = async () => {
   // Breaking News
@@ -368,14 +505,82 @@ const initCategory = async () => {
     : 'News';
   const pageTitle = regionNames[region] || categoryName;
   const catTitle = document.getElementById('category-title');
-  if (catTitle) catTitle.textContent = `${pageTitle} News`;
+  const isProductCategory = category?.toLowerCase() === 'product' || category?.toLowerCase() === 'products';
+  if (catTitle) catTitle.textContent = isProductCategory ? pageTitle : `${pageTitle} News`;
   const breadcrumb = document.getElementById('category-breadcrumb');
   if (breadcrumb) breadcrumb.textContent = pageTitle;
   const regionLinks = document.getElementById('region-links');
   if (regionLinks && category?.toLowerCase() === 'africa') regionLinks.hidden = false;
 
   const container = document.getElementById('category-news');
+  const productsSection = document.getElementById('products-section');
+  const productsGrid = document.getElementById('products-grid');
+  const productsContact = document.getElementById('products-contact');
   showLoader('category-news');
+
+  // Check if it's the products category
+  if (category?.toLowerCase() === 'product' || category?.toLowerCase() === 'products') {
+    // Hide news container, show products section
+    if (container) container.style.display = 'none';
+    if (productsSection) productsSection.hidden = false;
+    if (productsGrid) {
+      productsGrid.innerHTML = products.map(createProductCard).join('');
+      // Add click handlers for product inquiry buttons
+      productsGrid.querySelectorAll('.btn-product').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const productName = e.target.dataset.productName;
+          const phone1 = '+231777649986';
+          const phone2 = '+17729402871';
+          const message = `Hello, I'm interested in purchasing the "${productName}" from The African Diplomat merchandise. Please provide more details and pricing.`;
+          const whatsappUrl = `https://wa.me/${phone1}?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, '_blank');
+        });
+      });
+      // Add gallery dot navigation
+      productsGrid.querySelectorAll('.gallery-dot').forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          const dotEl = e.currentTarget;
+          const index = dotEl.dataset.index;
+          const gallery = dotEl.closest('.product-gallery');
+          if (!gallery) return;
+          const wrappers = gallery.querySelectorAll('.gallery-image-wrapper');
+          const dots = gallery.querySelectorAll('.gallery-dot');
+          wrappers.forEach(w => w.classList.remove('active'));
+          dots.forEach(d => d.classList.remove('active'));
+          if (wrappers[index]) wrappers[index].classList.add('active');
+          dotEl.classList.add('active');
+        });
+      });
+    }
+    // Add contact section
+    if (productsContact) {
+      productsContact.innerHTML = `
+        <div class="products-contact-card">
+          <h3><i class="fas fa-phone-alt"></i> Ready to Purchase?</h3>
+          <p>These premium merchandise items make perfect gifts or additions to your personal collection. Each product is crafted with quality materials and features our distinctive branding.</p>
+          <div class="contact-phones">
+            <a href="https://wa.me/231777649986" target="_blank" class="contact-phone">
+              <i class="fab fa-whatsapp"></i>
+              <span>+231 77 764 9986</span>
+            </a>
+            <a href="https://wa.me/17729402871" target="_blank" class="contact-phone">
+              <i class="fab fa-whatsapp"></i>
+              <span>+1 (772) 940-2871</span>
+            </a>
+          </div>
+          <p class="contact-note">Contact us via WhatsApp for pricing, availability, and shipping information!</p>
+        </div>
+      `;
+    }
+    const sidebar = document.getElementById('latest-sidebar');
+    if (sidebar) {
+      const latestNews = await fetchNews({ limit: 5 });
+      sidebar.innerHTML = latestNews.length
+        ? latestNews.map(createLatestNewsItem).join('')
+        : '<p class="sidebar-empty">No published news yet.</p>';
+    }
+    return;
+  }
 
   const news = await fetchNews({ category, ...(region ? { region } : {}), limit: 1000 });
   if (news.length) {
@@ -502,9 +707,27 @@ const initOpportunityDetail = async () => {
       
       <h3 style="margin-top: 20px;">Eligibility</h3>
       <p>${opp.eligibility || 'Open to all'}</p>
-    </div>
+    ${opp.curriculum && opp.curriculum.length ? `
+      <div class="course-curriculum-overview" style="margin-top: 30px; margin-bottom: 30px; background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <h3 style="font-size: 20px; color: var(--primary-color); margin-bottom: 15px;"><i class="fas fa-graduation-cap" style="color: var(--accent-color);"></i> Course Curriculum (${opp.curriculum.length} Modules)</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          ${opp.curriculum.map((topic, i) => `
+            <div style="padding: 12px 16px; background: #f8fafc; border-radius: 6px; border-left: 3px solid var(--accent-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <strong>Module ${topic.order || (i + 1)}: ${topic.title}</strong>
+                ${topic.summary ? `<p style="font-size: 13px; color: #64748b; margin-top: 4px;">${topic.summary}</p>` : ''}
+              </div>
+              <span style="font-size: 12px; color: #64748b; background: #e2e8f0; padding: 3px 8px; border-radius: 10px;"><i class="fas fa-lock"></i> Enrolled Only</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
 
-    <button id="btn-open-register" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">${pricingType === 'free' ? 'Register for Free' : pricingType === 'subscription' ? `Subscribe - ${price}` : `Pay ${price} & Register`}</button>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-top: 25px;">
+      <button id="btn-open-register" class="btn btn-primary" style="font-size: 17px; padding: 14px 28px;">${pricingType === 'free' ? 'Register for Free' : pricingType === 'subscription' ? `Subscribe - ${price}` : `Pay ${price} & Register`}</button>
+      <a href="classroom.html?id=${encodeURIComponent(opp._id || slug)}" class="btn btn-outline" style="font-size: 16px; padding: 13px 22px; display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-user-graduate"></i> Enrolled? Access Classroom &rarr;</a>
+    </div>
   `;
 
   // Setup modal
@@ -606,12 +829,38 @@ const initOpportunityDetail = async () => {
       submitBtn.disabled = true;
 
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+      const data = {};
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          if (value.name && value.size > 0) {
+            data[key] = value;
+          }
+        } else if (value !== '') {
+          data[key] = value;
+        }
+      }
 
       try {
         if (pricingType === 'free') {
           await registerOpportunity(data);
-          form.innerHTML = '<div style="text-align: center; color: green; padding: 20px;"><h3>Registration Successful!</h3><p>We will contact you shortly.</p><button class="btn btn-primary" onclick="window.location.reload()" style="margin-top: 15px;">Done</button></div>';
+          sessionStorage.setItem(`enrolled_${opp._id || slug}`, data.email);
+          form.innerHTML = `
+            <div style="text-align: center; padding: 25px 15px;">
+              <div style="width: 60px; height: 60px; margin: 0 auto 16px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 30px;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <h3 style="color: #0f172a; margin-bottom: 10px;">Free Registration Successful!</h3>
+              <p style="color: #475569; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+                You now have full free access to this course and its teaching materials.
+              </p>
+              <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="classroom.html?id=${encodeURIComponent(opp._id || slug)}" class="btn btn-primary" style="background: #0284c7;">
+                  <i class="fas fa-graduation-cap"></i> Enter Classroom Now
+                </a>
+                <button type="button" class="btn btn-outline" onclick="window.location.reload()">Done</button>
+              </div>
+            </div>
+          `;
         } else {
           const session = await createCheckoutSession(data);
           window.location.assign(session.url);

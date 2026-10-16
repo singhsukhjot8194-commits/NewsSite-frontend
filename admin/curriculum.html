@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Curriculum - Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .curriculum-select-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #0284c7;
+        }
+        
+        .topic-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        
+        .topic-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+        
+        .topic-header {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        .topic-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .topic-order-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .topic-body {
+            padding: 20px;
+        }
+        
+        .topic-content-preview {
+            color: #334155;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-size: 14px;
+            background: #fcfcfc;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #f1f5f9;
+            margin-bottom: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .topic-images-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .topic-img-thumb {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .topic-img-thumb:hover {
+            transform: scale(1.05);
+        }
+        
+        .empty-curriculum-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #cbd5e1;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">Admin Panel</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="news.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="opportunities.html"><i class="fas fa-briefcase"></i> Opportunities</a></li>
+                <li><a href="curriculum.html" class="active"><i class="fas fa-graduation-cap"></i> Course Curriculum</a></li>
+                <li><a href="registrations.html"><i class="fas fa-users"></i> Registrations</a></li>
+                <li><a href="local-payments.html"><i class="fas fa-money-bill-wave"></i> Local Payments</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Course Curriculum & Teaching Content</h1>
+                <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Add curriculum topics, teaching notes, and lesson diagrams/images for students enrolled in each course.</p>
+            </div>
+            <div>
+                <button class="btn btn-primary" id="addTopicBtn" style="display: none;"><i class="fas fa-plus"></i> Add Topic / Module</button>
+            </div>
+        </div>
+
+        <!-- Step 1: Course Selector -->
+        <div class="curriculum-select-card">
+            <label for="courseSelect" style="display: block; font-weight: 700; margin-bottom: 8px; font-size: 14px; color: #0f172a;">
+                <i class="fas fa-book-open" style="color: #0284c7; margin-right: 6px;"></i> Step 1: Select Course or Workshop:
+            </label>
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <select id="courseSelect" class="form-control" style="flex: 1; min-width: 260px; font-size: 15px; padding: 10px 14px;">
+                    <option value="">-- Choose a Course to manage curriculum --</option>
+                </select>
+                <button type="button" class="btn btn-outline" id="reloadCurriculumBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+
+        <!-- Topics List Container -->
+        <div id="curriculumContainer">
+            <div class="empty-curriculum-state" id="initialSelectPrompt">
+                <i class="fas fa-chalkboard-teacher" style="font-size: 48px; color: #94a3b8; margin-bottom: 14px;"></i>
+                <h3 style="font-size: 18px; margin-bottom: 8px;">Please select a course above</h3>
+                <p>Choose any course or workshop to view, add, and update its teaching modules, lessons, and diagrams.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add / Edit Topic Modal -->
+    <div class="modal" id="topicModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="topicModalTitle">Add Course Topic / Module</h3>
+                <button type="button" class="close-modal">&times;</button>
+            </div>
+            <form id="topicForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editingTopicId" name="topicId">
+
+                    <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="topicTitle">Topic Title <span style="color: red;">*</span></label>
+                            <input type="text" id="topicTitle" name="title" class="form-control" placeholder="e.g. Module 1: Introduction to Diplomacy" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="topicOrder">Order / Number</label>
+                            <input type="number" id="topicOrder" name="order" class="form-control" min="1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topicSummary">Topic Summary / Abstract</label>
+                        <input type="text" id="topicSummary" name="summary" class="form-control" placeholder="Brief summary of what students will learn in this topic">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topicContent">Teaching Data & Text Notes (Content for Students) <span style="color: red;">*</span></label>
+                        <textarea id="topicContent" name="content" class="form-control" rows="8" placeholder="Enter detailed teaching notes, explanations, lecture outline, key takeaways, and instructions for this topic..." style="line-height: 1.6;" required></textarea>
+                        <small style="color: #64748b; font-size: 12px;">This full content is securely locked and only visible to students with verified course payment.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topicImages">Upload Lesson Diagrams & Topic Images (Optional, multiple allowed)</label>
+                        <input type="file" id="topicImages" name="images" class="form-control" accept="image/*" multiple>
+                        <small style="color: #64748b; font-size: 12px;">Select photos, charts, or diagram images to display alongside this topic.</small>
+                    </div>
+
+                    <div id="existingImagesContainer" style="display: none; margin-top: 10px;">
+                        <label style="font-size: 13px; font-weight: 600;">Current Images for this Topic:</label>
+                        <div id="existingImagesList" class="topic-images-grid"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveTopicBtn"><i class="fas fa-save"></i> Save Topic</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal" id="imagePreviewModal">
+        <div class="modal-content" style="max-width: 800px; text-align: center;">
+            <div class="modal-header">
+                <h3>Lesson Image Preview</h3>
+                <button type="button" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="fullPreviewImage" src="" alt="Lesson Image" style="max-width: 100%; max-height: 75vh; border-radius: 6px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline close-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Our Journalism - The African Diplomat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .donate-hero {
+            background: linear-gradient(135deg, #0c2333 0%, #0369a1 100%);
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .donate-card {
+            max-width: 580px;
+            margin: -40px auto 60px;
+            background: white;
+            border-radius: 12px;
+            padding: 35px 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #f59e0b;
+        }
+        
+        .amount-btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .amount-btn {
+            padding: 12px 10px;
+            border: 2px solid #cbd5e1;
+            background: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .amount-btn:hover {
+            border-color: #0284c7;
+            color: #0284c7;
+        }
+        
+        .amount-btn.active {
+            border-color: #f59e0b;
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container navbar">
+            <a href="index.html" class="logo" aria-label="The African Diplomat home">
+                <img class="logo-image" src="logo.jpeg" alt="">
+                <span>The African Diplomat</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="opportunities.html?type=Course">Courses</a>
+                <a href="opportunities.html?type=Workshop">Workshops</a>
+                <a href="category.html?cat=product" style="color: #dc2626; font-weight: 700;"><i class="fas fa-box"></i> Products</a>
+            </nav>
+            <form id="search-form" class="search-bar">
+                <input type="text" placeholder="Search news...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </header>
+
+    <section class="donate-hero">
+        <div class="container" style="max-width: 700px;">
+            <span style="background: rgba(245, 158, 11, 0.25); color: #fef08a; padding: 4px 14px; border-radius: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase;"><i class="fas fa-heart"></i> Independent Journalism</span>
+            <h1 style="font-size: 34px; margin-top: 14px; color: white;">Support Our Journalism</h1>
+            <p style="font-size: 16px; color: #e0f2fe; margin-top: 10px; line-height: 1.6;">
+                Your generous contribution ensures factual, fearless, and accessible news reporting across the African continent and globally.
+            </p>
+        </div>
+    </section>
+
+    <main class="container">
+        <div class="donate-card">
+            <h2 style="font-size: 20px; color: #0f172a; margin-bottom: 8px;">Select Contribution Amount (USD)</h2>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 18px;">Choose an amount or enter a custom sum to support our newsroom.</p>
+
+            <form id="donate-form">
+                <input type="hidden" id="donation-opp-id" name="opportunityId">
+
+                <div class="amount-btn-grid">
+                    <button type="button" class="amount-btn" data-amt="5">$5</button>
+                    <button type="button" class="amount-btn active" data-amt="10">$10</button>
+                    <button type="button" class="amount-btn" data-amt="25">$25</button>
+                    <button type="button" class="amount-btn" data-amt="50">$50</button>
+                    <button type="button" class="amount-btn" data-amt="100">$100</button>
+                    <button type="button" class="amount-btn" data-amt="custom">Custom</button>
+                </div>
+
+                <div class="form-group" id="custom-amount-group" style="display: none;">
+                    <label for="custom-amount">Enter Custom Amount ($ USD)</label>
+                    <input type="number" id="custom-amount" min="1" step="any" placeholder="e.g. 15" class="form-control" style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="donor-name" style="font-weight: 600; font-size: 14px;">Full Name</label>
+                    <input type="text" id="donor-name" name="name" required class="form-control" placeholder="Your name" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="donor-email" style="font-weight: 600; font-size: 14px;">Email Address</label>
+                    <input type="email" id="donor-email" name="email" required class="form-control" placeholder="name@example.com" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="donor-phone" style="font-weight: 600; font-size: 14px;">Phone Number</label>
+                    <input type="tel" id="donor-phone" name="phone" required class="form-control" placeholder="+231..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div class="payment-methods" style="margin-top: 20px; margin-bottom: 20px;">
+                    <p style="margin-bottom: 8px; font-weight: 600; font-size: 14px;">Select Payment Method:</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <label style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 14px;">
+              <input type="radio" name="paymentMethod" value="stripe" checked style="margin-right: 5px;"> Card
+            </label>
+                        <label style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 14px;">
+              <input type="radio" name="paymentMethod" value="lonestar" style="margin-right: 5px;"> Lonestar
+            </label>
+                        <label style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 14px;">
+              <input type="radio" name="paymentMethod" value="orange" style="margin-right: 5px;"> Orange
+            </label>
+                    </div>
+
+                    <!-- Orange Money Instructions -->
+                    <div id="orange-details" class="mobile-payment-details" style="display: none; background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: center;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; color: #ea580c; margin-bottom: 8px;">
+                            <i class="fas fa-qrcode"></i> Orange Money Transfer
+                        </div>
+                        <p style="font-size: 14px; color: #334155; margin-bottom: 6px;">Account Holder: <strong style="color: #0f172a;">Myean D Torgean</strong></p>
+                        <div style="margin: 12px 0;">
+                            <img src="QR.jpeg" alt="Orange Money QR Code" style="max-width: 170px; width: 100%; border-radius: 8px; border: 2px solid #fed7aa; margin: 0 auto; display: block;">
+                        </div>
+                        <div style="text-align: left; background: white; padding: 10px; border-radius: 6px; border: 1px solid #fed7aa;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Upload Donation Screenshot <span style="color: red;">*</span></label>
+                            <input type="file" name="paymentProof" accept="image/*" style="width: 100%; font-size: 13px;">
+                            <label style="display: block; font-size: 12px; font-weight: 500; color: #64748b; margin-top: 8px; margin-bottom: 3px;">Transaction Reference / ID (Optional)</label>
+                            <input type="text" name="transactionReference" placeholder="e.g. ORG12345678" style="width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                        </div>
+                    </div>
+
+                    <!-- Lonestar MTN Instructions -->
+                    <div id="lonestar-details" class="mobile-payment-details" style="display: none; background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: center;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; color: #ca8a04; margin-bottom: 8px;">
+                            <i class="fas fa-mobile-alt"></i> Lonestar Cell MTN Mobile Money
+                        </div>
+                        <p style="font-size: 14px; color: #334155; margin-bottom: 6px;">Payment Number: <strong style="color: #0f172a; font-size: 16px;">+231880601584</strong></p>
+                        <p style="font-size: 14px; color: #334155; margin-bottom: 8px;">Account Owner: <strong style="color: #0f172a;">Myean D Torgbean</strong></p>
+                        <div style="text-align: left; background: white; padding: 10px; border-radius: 6px; border: 1px solid #fef08a;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Upload Donation Screenshot <span style="color: red;">*</span></label>
+                            <input type="file" name="paymentProof" accept="image/*" style="width: 100%; font-size: 13px;">
+                            <label style="display: block; font-size: 12px; font-weight: 500; color: #64748b; margin-top: 8px; margin-bottom: 3px;">Transaction Reference / ID (Optional)</label>
+                            <input type="text" name="transactionReference" placeholder="e.g. LONE12345678" style="width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="donate-submit-btn" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: white; cursor: pointer; border-radius: 6px;"><i class="fas fa-heart"></i> Contribute $10</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span>&copy; 2026 The African Diplomat. All rights reserved.</span>
+                <a href="#" class="back-to-top" style="color: white; text-decoration: none;">Back to top <i class="fas fa-chevron-up"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            let selectedAmount = 10;
+            const amountBtns = document.querySelectorAll('.amount-btn');
+            const customGroup = document.getElementById('custom-amount-group');
+            const customInput = document.getElementById('custom-amount');
+            const oppIdInput = document.getElementById('donation-opp-id');
+            const form = document.getElementById('donate-form');
+            const submitBtn = document.getElementById('donate-submit-btn');
+
+            function updateSubmitButtonText() {
+                const method = form.querySelector('input[name="paymentMethod"]:checked')?.value || 'stripe';
+                if (method === 'orange' || method === 'lonestar') {
+                    submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> Submit $${selectedAmount} Verification Proof`;
+                } else {
+                    submitBtn.innerHTML = `<i class="fas fa-heart"></i> Contribute $${selectedAmount}`;
+                }
+            }
+
+            // Fetch donation opportunity ID
+            try {
+                const res = await fetch(`${API_BASE}/opportunities/support-our-journalism`);
+                if (res.ok) {
+                    const opp = await res.json();
+                    oppIdInput.value = opp._id;
+                }
+            } catch (e) {}
+
+            amountBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    amountBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const amt = btn.getAttribute('data-amt');
+                    if (amt === 'custom') {
+                        customGroup.style.display = 'block';
+                        customInput.focus();
+                        selectedAmount = Math.max(1, Number(customInput.value) || 10);
+                    } else {
+                        customGroup.style.display = 'none';
+                        selectedAmount = Number(amt) || 10;
+                    }
+                    updateSubmitButtonText();
+                });
+            });
+
+            customInput.addEventListener('input', () => {
+                const val = Number(customInput.value);
+                if (val > 0) {
+                    selectedAmount = val;
+                    updateSubmitButtonText();
+                }
+            });
+
+            // Payment method radios toggle
+            const radios = form.querySelectorAll('input[name="paymentMethod"]');
+            const orangeBox = document.getElementById('orange-details');
+            const lonestarBox = document.getElementById('lonestar-details');
+
+            radios.forEach(r => {
+                r.addEventListener('change', () => {
+                    const val = form.querySelector('input[name="paymentMethod"]:checked')?.value;
+                    orangeBox.style.display = val === 'orange' ? 'block' : 'none';
+                    lonestarBox.style.display = val === 'lonestar' ? 'block' : 'none';
+                    updateSubmitButtonText();
+                });
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                const method = form.querySelector('input[name="paymentMethod"]:checked')?.value || 'stripe';
+
+                if (method === 'orange' || method === 'lonestar') {
+                    const box = method === 'orange' ? orangeBox : lonestarBox;
+                    const file = box.querySelector('input[name="paymentProof"]')?.files?.[0];
+                    if (!file) {
+                        alert('Please upload a screenshot of your donation transfer.');
+                        submitBtn.disabled = false;
+                        updateSubmitButtonText();
+                        return;
+                    }
+
+                    const fd = new FormData();
+                    fd.append('name', form.name.value);
+                    fd.append('email', form.email.value);
+                    fd.append('phone', form.phone.value);
+                    fd.append('opportunityId', oppIdInput.value || 'support-our-journalism');
+                    fd.append('amount', selectedAmount);
+                    fd.append('paymentMethod', method);
+                    fd.append('paymentProof', file);
+                    const txnRef = box.querySelector('input[name="transactionReference"]')?.value;
+                    if (txnRef) fd.append('transactionReference', txnRef);
+
+                    try {
+                        await registerOpportunityWithProof(fd);
+                        form.innerHTML = `
+              <div style="text-align: center; padding: 25px 10px;">
+                <div style="width: 60px; height: 60px; background: #ecfdf5; border-radius: 50%; color: #10b981; font-size: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                  <i class="fas fa-check"></i>
+                </div>
+                <h3 style="color: #0f172a; margin-bottom: 10px;">Thank You For Your Support!</h3>
+                <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                  We have received your donation of <strong>$${selectedAmount}</strong> for <strong>${method === 'orange' ? 'Orange Money' : 'Lonestar Cell MTN'}</strong>. Your contribution helps keep our journalism independent and fearless.
+                </p>
+                <a href="index.html" class="btn btn-primary" style="margin-top: 20px; display: inline-block;">Return to Homepage</a>
+              </div>
+            `;
+                    } catch (err) {
+                        alert(err.message || 'Failed to submit donation proof.');
+                        submitBtn.disabled = false;
+                        updateSubmitButtonText();
+                    }
+                    return;
+                }
+
+                // Stripe card payment
+                try {
+                    const session = await createCheckoutSession({
+                        name: form.name.value,
+                        email: form.email.value,
+                        phone: form.phone.value,
+                        opportunityId: oppIdInput.value || 'support-our-journalism',
+                        amount: selectedAmount
+                    });
+                    if (session && session.url) {
+                        window.location.href = session.url;
+                    }
+                } catch (err) {
+                    alert(err.message || 'Payment initiation failed.');
+                    submitBtn.disabled = false;
+                    updateSubmitButtonText();
+                }
+            });
+            updateSubmitButtonText();
+        });
+    </script>
+</body>
+
+</html>

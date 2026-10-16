@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (currentPath === "dashboard.html") initDashboard();
   if (currentPath === "news.html") initNews();
   if (currentPath === "opportunities.html") initOpportunities();
+  if (currentPath === "curriculum.html") initCurriculumPage();
   if (currentPath === "registrations.html") initRegistrations();
   if (currentPath === "local-payments.html") initLocalPaymentsPage();
 });
@@ -1248,3 +1249,259 @@ window.verifyPaymentPrompt = async function (id, action) {
     showToast(err.message || "Failed to update payment status", "error");
   }
 };
+
+// ---- Course Curriculum Management ----
+let currentSelectedCourseId = null;
+let currentCourseCurriculum = [];
+
+async function initCurriculumPage() {
+  const courseSelect = document.getElementById("courseSelect");
+  const addTopicBtn = document.getElementById("addTopicBtn");
+  const reloadBtn = document.getElementById("reloadCurriculumBtn");
+  const topicForm = document.getElementById("topicForm");
+
+  try {
+    const data = await fetchAPI("/opportunities?limit=1000");
+    const opps = Array.isArray(data) ? data : data.opportunities || [];
+    if (courseSelect) {
+      courseSelect.innerHTML = '<option value="">-- Choose a Course to manage curriculum --</option>';
+      opps.filter(o => o.type !== 'Donation').forEach(opp => {
+        const opt = document.createElement("option");
+        opt.value = opp._id;
+        opt.textContent = `${opp.title} (${opp.type || 'Course'})`;
+        courseSelect.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    showToast("Failed to load courses", "error");
+  }
+
+  if (courseSelect) {
+    courseSelect.addEventListener("change", async (e) => {
+      currentSelectedCourseId = e.target.value;
+      if (currentSelectedCourseId) {
+        if (addTopicBtn) addTopicBtn.style.display = "inline-flex";
+        await loadCurriculumForCourse(currentSelectedCourseId);
+      } else {
+        if (addTopicBtn) addTopicBtn.style.display = "none";
+        const container = document.getElementById("curriculumContainer");
+        if (container) {
+          container.innerHTML = `
+            <div class="empty-curriculum-state">
+              <i class="fas fa-chalkboard-teacher" style="font-size: 48px; color: #94a3b8; margin-bottom: 14px;"></i>
+              <h3 style="font-size: 18px; margin-bottom: 8px;">Please select a course above</h3>
+              <p>Choose any course or workshop to view, add, and update its teaching modules, lessons, and diagrams.</p>
+            </div>
+          `;
+        }
+      }
+    });
+  }
+
+  if (reloadBtn) {
+    reloadBtn.addEventListener("click", () => {
+      if (currentSelectedCourseId) loadCurriculumForCourse(currentSelectedCourseId);
+      else showToast("Please select a course first");
+    });
+  }
+
+  if (addTopicBtn) {
+    addTopicBtn.addEventListener("click", () => {
+      openTopicModal(null);
+    });
+  }
+
+  if (topicForm) {
+    topicForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await saveCurriculumTopic();
+    });
+  }
+}
+
+async function loadCurriculumForCourse(courseId) {
+  const container = document.getElementById("curriculumContainer");
+  if (!container) return;
+
+  try {
+    const data = await fetchAPI(`/opportunities/${courseId}/curriculum`);
+    if (!data) return;
+
+    currentCourseCurriculum = data.curriculum || [];
+    renderCurriculumTopics(currentCourseCurriculum);
+  } catch (err) {
+    showToast(err.message || "Failed to load curriculum", "error");
+  }
+}
+
+function renderCurriculumTopics(topics) {
+  const container = document.getElementById("curriculumContainer");
+  if (!container) return;
+
+  if (!topics || !topics.length) {
+    container.innerHTML = `
+      <div class="empty-curriculum-state">
+        <i class="fas fa-book-reader" style="font-size: 48px; color: #0284c7; margin-bottom: 14px;"></i>
+        <h3 style="font-size: 18px; margin-bottom: 8px; color: #0f172a;">No Topics Added Yet</h3>
+        <p style="margin-bottom: 20px;">Get started by adding the first teaching module, lesson notes, and images for this course.</p>
+        <button type="button" class="btn btn-primary" onclick="openTopicModal(null)"><i class="fas fa-plus"></i> Add First Topic</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = "";
+  topics.forEach((topic, idx) => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+
+    const imagesHtml = topic.images && topic.images.length
+      ? `
+        <div style="margin-top: 15px;">
+          <strong style="font-size: 13px; color: #475569; display: block; margin-bottom: 8px;"><i class="fas fa-images"></i> Teaching Diagrams & Lesson Images (${topic.images.length}):</strong>
+          <div class="topic-images-grid">
+            ${topic.images.map(img => `<img src="${img}" alt="Lesson diagram" class="topic-img-thumb" onclick="window.viewLessonImage('${img}')" title="Click to view full image">`).join('')}
+          </div>
+        </div>
+      `
+      : '';
+
+    card.innerHTML = `
+      <div class="topic-header">
+        <div class="topic-title">
+          <span class="topic-order-badge">Module ${topic.order || (idx + 1)}</span>
+          <span>${escapeHTML(topic.title)}</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-sm btn-primary" onclick="editTopicPrompt('${topic._id}')"><i class="fas fa-edit"></i> Edit</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick="deleteTopicPrompt('${topic._id}', '${escapeHTML(topic.title)}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="topic-body">
+        ${topic.summary ? `<p style="font-weight: 500; color: #0f172a; margin-bottom: 12px; font-size: 14px;"><em>Summary:</em> ${escapeHTML(topic.summary)}</p>` : ''}
+        <div class="topic-content-preview">${escapeHTML(topic.content || 'No text content added yet.')}</div>
+        ${imagesHtml}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+window.viewLessonImage = function(url) {
+  const modal = document.getElementById("imagePreviewModal");
+  const img = document.getElementById("fullPreviewImage");
+  if (img) img.src = url;
+  openModal("imagePreviewModal");
+};
+
+function openTopicModal(topic) {
+  const form = document.getElementById("topicForm");
+  if (!form) return;
+  form.reset();
+
+  const titleEl = document.getElementById("topicModalTitle");
+  const idEl = document.getElementById("editingTopicId");
+  const orderEl = document.getElementById("topicOrder");
+  const existingImgsContainer = document.getElementById("existingImagesContainer");
+  const existingImgsList = document.getElementById("existingImagesList");
+
+  if (topic) {
+    if (titleEl) titleEl.textContent = "Edit Course Topic / Module";
+    if (idEl) idEl.value = topic._id;
+    document.getElementById("topicTitle").value = topic.title || "";
+    document.getElementById("topicOrder").value = topic.order || 1;
+    document.getElementById("topicSummary").value = topic.summary || "";
+    document.getElementById("topicContent").value = topic.content || "";
+
+    if (topic.images && topic.images.length && existingImgsContainer && existingImgsList) {
+      existingImgsContainer.style.display = "block";
+      existingImgsList.innerHTML = topic.images.map(img => `
+        <div style="position: relative; display: inline-block;">
+          <img src="${img}" class="topic-img-thumb" style="width: 80px; height: 80px;">
+        </div>
+      `).join('');
+    } else if (existingImgsContainer) {
+      existingImgsContainer.style.display = "none";
+    }
+  } else {
+    if (titleEl) titleEl.textContent = "Add Course Topic / Module";
+    if (idEl) idEl.value = "";
+    if (orderEl) orderEl.value = (currentCourseCurriculum ? currentCourseCurriculum.length + 1 : 1);
+    if (existingImgsContainer) existingImgsContainer.style.display = "none";
+  }
+
+  openModal("topicModal");
+}
+
+window.editTopicPrompt = function(topicId) {
+  const topic = currentCourseCurriculum.find(t => t._id === topicId);
+  if (topic) openTopicModal(topic);
+};
+
+window.deleteTopicPrompt = async function(topicId, topicTitle) {
+  if (!window.confirm(`Delete the topic "${topicTitle}"? This cannot be undone.`)) return;
+
+  try {
+    const res = await fetchAPI(`/opportunities/${currentSelectedCourseId}/curriculum/topic/${topicId}`, {
+      method: "DELETE"
+    });
+    if (res) {
+      showToast("Topic deleted successfully");
+      await loadCurriculumForCourse(currentSelectedCourseId);
+    }
+  } catch (err) {
+    showToast(err.message || "Failed to delete topic", "error");
+  }
+};
+
+async function saveCurriculumTopic() {
+  const form = document.getElementById("topicForm");
+  const saveBtn = document.getElementById("saveTopicBtn");
+  const topicId = document.getElementById("editingTopicId").value;
+  const isEditing = !!topicId;
+
+  if (!currentSelectedCourseId) {
+    showToast("Please choose a course first", "error");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("title", document.getElementById("topicTitle").value.trim());
+  formData.append("order", document.getElementById("topicOrder").value);
+  formData.append("summary", document.getElementById("topicSummary").value.trim());
+  formData.append("content", document.getElementById("topicContent").value.trim());
+
+  const fileInput = document.getElementById("topicImages");
+  if (fileInput && fileInput.files && fileInput.files.length) {
+    for (let i = 0; i < fileInput.files.length; i++) {
+      formData.append("images", fileInput.files[i]);
+    }
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+  try {
+    const url = isEditing
+      ? `/opportunities/${currentSelectedCourseId}/curriculum/topic/${topicId}`
+      : `/opportunities/${currentSelectedCourseId}/curriculum/topic`;
+
+    const method = isEditing ? "PUT" : "POST";
+
+    const res = await fetchAPI(url, {
+      method,
+      body: formData
+    });
+
+    if (res) {
+      showToast(isEditing ? "Topic updated successfully!" : "Topic created successfully!");
+      closeModal("topicModal");
+      await loadCurriculumForCourse(currentSelectedCourseId);
+    }
+  } catch (err) {
+    showToast(err.message || "Failed to save topic", "error");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Topic';
+  }
+}

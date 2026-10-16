@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Classroom - The African Diplomat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .classroom-container {
+            max-width: 1200px;
+            margin: 30px auto 60px;
+            padding: 0 16px;
+        }
+        .gate-card {
+            max-width: 540px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--accent-color, #0284c7);
+            text-align: center;
+        }
+        .classroom-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+            margin-top: 25px;
+            align-items: start;
+        }
+        .modules-sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            position: sticky;
+            top: 20px;
+        }
+        .sidebar-title {
+            padding: 16px 20px;
+            background: #0c2333;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+        .mobile-syllabus-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        @media (max-width: 900px) {
+            .classroom-layout {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+            .modules-sidebar {
+                position: static;
+            }
+            .mobile-syllabus-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .modules-sidebar.collapsed #moduleNavList {
+                display: none;
+            }
+            .lesson-content-card {
+                padding: 22px 16px !important;
+            }
+            .course-banner-hero {
+                padding: 20px 16px !important;
+            }
+            .course-banner-hero h1 {
+                font-size: 22px !important;
+            }
+        }
+        .module-nav-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #334155;
+        }
+        .module-nav-item:hover {
+            background: #f8fafc;
+            color: #0284c7;
+        }
+        .module-nav-item.active {
+            background: #f0f9ff;
+            color: #0369a1;
+            border-left: 4px solid var(--gold-light, #f59e0b);
+            font-weight: 600;
+        }
+        .module-num {
+            background: #e2e8f0;
+            color: #475569;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .module-nav-item.active .module-num {
+            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            color: white;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+        }
+        .lesson-content-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            border-top: 3px solid var(--gold-light, #f59e0b);
+            padding: 35px 30px;
+        }
+        .lesson-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1e293b;
+            margin-top: 20px;
+        }
+        .lesson-text h3 {
+            font-size: 20px;
+            color: #0c2333;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+        .lesson-text h4 {
+            font-size: 17px;
+            color: #0369a1;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+        .lesson-text p {
+            margin-bottom: 14px;
+        }
+        .lesson-text ul, .lesson-text ol {
+            margin: 12px 0 18px 24px;
+            line-height: 1.7;
+        }
+        .lesson-text li {
+            margin-bottom: 6px;
+        }
+        .lesson-text code {
+            background: #f1f5f9;
+            color: #0369a1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        .lesson-text table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 15px;
+        }
+        .lesson-text th, .lesson-text td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        .lesson-text th {
+            background: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .lesson-gallery {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+        .lesson-img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .lesson-img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+        }
+        .course-banner-hero {
+            background: linear-gradient(135deg, #0c2333 0%, #0369a1 100%);
+            color: white;
+            padding: 30px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 3px solid var(--gold-light, #f59e0b);
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container navbar">
+            <a href="index.html" class="logo" aria-label="The African Diplomat home">
+                <img class="logo-image" src="logo.jpeg" alt="">
+                <span>The African Diplomat</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="opportunities.html?type=Course">Courses</a>
+                <a href="opportunities.html?type=Workshop">Workshops</a>
+            </nav>
+            <form id="search-form" class="search-bar">
+                <input type="text" placeholder="Search news...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </header>
+
+    <main class="classroom-container">
+        <!-- Security Access Verification Gate -->
+        <div class="gate-card" id="accessGate">
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 16px;">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 style="font-size: 22px; color: #0f172a; margin-bottom: 8px;">Enrolled Student Access</h2>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 22px;">Enter your registered email address to access the curriculum, learning notes, and teaching diagrams for this course.</p>
+
+            <form id="verifyAccessForm">
+                <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                    <label for="studentEmail" style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 5px;">Your Registered Email <span style="color: red;">*</span></label>
+                    <input type="email" id="studentEmail" class="form-control" placeholder="name@example.com" required style="width: 100%; padding: 10px 14px; font-size: 15px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div id="gateAlert" style="display: none; padding: 12px; border-radius: 6px; font-size: 13px; text-align: left; margin-bottom: 15px; line-height: 1.5;"></div>
+                <button type="submit" class="btn btn-primary" id="verifyBtn" style="width: 100%; padding: 12px; font-size: 15px;">Unlock Classroom <i class="fas fa-key" style="margin-left: 6px;"></i></button>
+            </form>
+            <div style="margin-top: 20px; font-size: 13px; color: #64748b;">
+                Haven't registered yet? <a href="opportunities.html" style="color: #0284c7; font-weight: 600;">Browse Courses</a>
+            </div>
+        </div>
+
+        <!-- Authenticated Classroom Portal (Initially Hidden) -->
+        <div id="classroomPortal" style="display: none;">
+            <div class="course-banner-hero">
+                <div>
+                    <span style="background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 12px; font-size: 12px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;" id="heroTypeBadge">Course</span>
+                    <h1 style="font-size: 28px; margin-top: 8px; color: white;" id="heroCourseTitle">Course Title</h1>
+                    <p style="color: #e0f2fe; font-size: 14px; margin-top: 6px;"><i class="fas fa-user-graduate"></i> Enrolled as: <strong id="studentNameDisplay">Student</strong></p>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline" onclick="window.print()" style="color: white; border-color: rgba(255,255,255,0.5);"><i class="fas fa-print"></i> Print Notes</button>
+                </div>
+            </div>
+
+            <div class="classroom-layout">
+                <!-- Sidebar with list of Modules -->
+                <aside class="modules-sidebar" id="modulesSidebar">
+                    <div class="sidebar-title">
+                        <span><i class="fas fa-list-ol"></i> Modules & Topics</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="topicCountBadge" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">0</span>
+                            <button type="button" class="mobile-syllabus-toggle" id="syllabusToggleBtn" aria-label="Toggle Syllabus"><i class="fas fa-bars"></i> Topics</button>
+                        </div>
+                    </div>
+                    <div id="moduleNavList">
+                        <!-- Populated by JS -->
+                    </div>
+                </aside>
+
+                <!-- Active Topic Main Content Area -->
+                <section class="lesson-content-card" id="lessonCard">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+                        <span id="activeModuleBadge" style="background: #e0f2fe; color: #0284c7; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px;">Module 1</span>
+                        <span id="lessonModeBadge" style="font-size: 13px; color: #64748b;"><i class="fas fa-laptop"></i> Online Material</span>
+                    </div>
+
+                    <h2 id="activeTopicTitle" style="font-size: 24px; color: #0f172a; margin-top: 15px;">Select a Topic</h2>
+                    <p id="activeTopicSummary" style="color: #64748b; font-size: 14px; font-style: italic; margin-top: 6px;"></p>
+
+                    <div class="lesson-text" id="activeTopicContent">
+                        Select a module from the left to begin studying.
+                    </div>
+
+                    <!-- Diagram & Teaching Images Gallery -->
+                    <div class="lesson-gallery" id="activeTopicGallery" style="display: none;">
+                        <h3 style="font-size: 16px; color: #0f172a;"><i class="fas fa-images" style="color: #0284c7;"></i> Lesson Diagrams & Illustrated Materials</h3>
+                        <div class="gallery-grid" id="activeGalleryGrid"></div>
+                    </div>
+
+                    <!-- Navigation Footer between topics -->
+                    <div style="display: flex; justify-content: space-between; margin-top: 35px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                        <button type="button" class="btn btn-outline" id="prevTopicBtn" style="visibility: hidden;"><i class="fas fa-arrow-left"></i> Previous Topic</button>
+                        <button type="button" class="btn btn-primary" id="nextTopicBtn" style="visibility: hidden;">Next Topic <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Image Modal for Full View -->
+    <div class="modal" id="classroomImgModal">
+        <div class="modal-content" style="max-width: 850px; text-align: center;">
+            <button class="close-modal">&times;</button>
+            <img id="modalEnlargedImg" src="" alt="Lesson material" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span>&copy; 2026 The African Diplomat. All rights reserved.</span>
+                <a href="#" class="back-to-top" style="color: white; text-decoration: none;">Back to top <i class="fas fa-chevron-up"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id') || urlParams.get('slug');
+
+            if (!courseId) {
+                document.getElementById('accessGate').innerHTML = `
+                    <div style="color: #ef4444; font-size: 40px; margin-bottom: 12px;"><i class="fas fa-exclamation-circle"></i></div>
+                    <h3>No Course Specified</h3>
+                    <p style="color: #64748b; margin-top: 8px;">Please select a course from our opportunities page to access its classroom.</p>
+                    <a href="opportunities.html" class="btn btn-primary" style="margin-top: 15px; display: inline-block;">View Courses</a>
+                `;
+                return;
+            }
+
+            const gateAlert = document.getElementById('gateAlert');
+            const verifyForm = document.getElementById('verifyAccessForm');
+            const verifyBtn = document.getElementById('verifyBtn');
+
+            let currentClassroomData = null;
+            let currentTopicIndex = 0;
+
+            // Auto-check if student was previously unlocked in this session
+            const savedEmail = sessionStorage.getItem(`enrolled_${courseId}`);
+            if (savedEmail) {
+                document.getElementById('studentEmail').value = savedEmail;
+                await performUnlock(savedEmail);
+            }
+
+            verifyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('studentEmail').value.trim();
+                await performUnlock(email);
+            });
+
+            async function performUnlock(email) {
+                verifyBtn.disabled = true;
+                verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Enrollment...';
+                gateAlert.style.display = 'none';
+
+                try {
+                    const res = await fetch(`${API_BASE}/opportunities/${courseId}/classroom/access`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.allowed) {
+                        sessionStorage.setItem(`enrolled_${courseId}`, email);
+                        currentClassroomData = data;
+                        renderClassroom(data);
+                    } else {
+                        gateAlert.style.display = 'block';
+                        if (data.reason === 'pending_verification') {
+                            gateAlert.style.background = '#fef3c7';
+                            gateAlert.style.color = '#92400e';
+                            gateAlert.style.border = '1px solid #fde68a';
+                            gateAlert.innerHTML = `<strong><i class="fas fa-clock"></i> Payment Pending Verification:</strong><br>${data.message}`;
+                        } else {
+                            gateAlert.style.background = '#fee2e2';
+                            gateAlert.style.color = '#991b1b';
+                            gateAlert.style.border = '1px solid #fecaca';
+                            gateAlert.innerHTML = `<strong><i class="fas fa-exclamation-triangle"></i> Access Denied:</strong><br>${data.message || 'Unable to verify enrollment.'}`;
+                        }
+                    }
+                } catch (err) {
+                    gateAlert.style.display = 'block';
+                    gateAlert.style.background = '#fee2e2';
+                    gateAlert.style.color = '#991b1b';
+                    gateAlert.textContent = 'Network error verifying your enrollment. Please try again.';
+                } finally {
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = 'Unlock Classroom <i class="fas fa-key" style="margin-left: 6px;"></i>';
+                }
+            }
+
+            function renderClassroom(data) {
+                document.getElementById('accessGate').style.display = 'none';
+                document.getElementById('classroomPortal').style.display = 'block';
+
+                document.getElementById('heroCourseTitle').textContent = data.course.title;
+                document.getElementById('heroTypeBadge').textContent = data.course.type || 'Course';
+                document.getElementById('studentNameDisplay').textContent = data.student.name || data.student.email;
+
+                const curriculum = data.curriculum || [];
+                document.getElementById('topicCountBadge').textContent = `${curriculum.length} Modules`;
+
+                const navList = document.getElementById('moduleNavList');
+                navList.innerHTML = '';
+
+                if (!curriculum.length) {
+                    navList.innerHTML = '<div style="padding: 20px; color: #64748b; font-size: 13px;">No curriculum topics posted yet by the instructor.</div>';
+                    document.getElementById('activeTopicTitle').textContent = 'Curriculum Coming Soon';
+                    document.getElementById('activeTopicContent').textContent = 'The teaching modules and lesson materials for this course are currently being finalized. Please check back soon.';
+                    return;
+                }
+
+                curriculum.forEach((topic, idx) => {
+                    const item = document.createElement('div');
+                    item.className = `module-nav-item ${idx === 0 ? 'active' : ''}`;
+                    item.innerHTML = `
+                        <div class="module-num">${topic.order || (idx + 1)}</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 600;">${escapeHtml(topic.title)}</div>
+                            ${topic.summary ? `<div style="font-size: 12px; color: #64748b; margin-top: 3px;">${escapeHtml(topic.summary)}</div>` : ''}
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        selectTopic(idx);
+                    });
+                    navList.appendChild(item);
+                });
+
+                selectTopic(0, false);
+            }
+
+            function selectTopic(index, isUserAction = true) {
+                if (!currentClassroomData || !currentClassroomData.curriculum) return;
+                const topics = currentClassroomData.curriculum;
+                if (!topics[index]) return;
+
+                currentTopicIndex = index;
+                const topic = topics[index];
+
+                // Update active state in nav
+                const navItems = document.querySelectorAll('.module-nav-item');
+                navItems.forEach((el, i) => {
+                    el.classList.toggle('active', i === index);
+                });
+
+                document.getElementById('activeModuleBadge').textContent = `Module ${topic.order || (index + 1)}`;
+                document.getElementById('activeTopicTitle').textContent = topic.title;
+                document.getElementById('activeTopicSummary').textContent = topic.summary || '';
+                
+                const contentEl = document.getElementById('activeTopicContent');
+                if (topic.content) {
+                    contentEl.innerHTML = topic.content;
+                } else {
+                    contentEl.innerHTML = '<p style="color: #64748b;">No text notes uploaded for this module.</p>';
+                }
+
+                // Images gallery
+                const galleryContainer = document.getElementById('activeTopicGallery');
+                const grid = document.getElementById('activeGalleryGrid');
+                if (topic.images && topic.images.length) {
+                    galleryContainer.style.display = 'block';
+                    grid.innerHTML = topic.images.map(img => `
+                        <div>
+                            <img src="${img}" alt="Lesson diagram" class="lesson-img" onclick="zoomLessonImg('${img}')" title="Click to enlarge diagram">
+                        </div>
+                    `).join('');
+                } else {
+                    galleryContainer.style.display = 'none';
+                    grid.innerHTML = '';
+                }
+
+                // Prev / Next button
+                const prevBtn = document.getElementById('prevTopicBtn');
+                const nextBtn = document.getElementById('nextTopicBtn');
+
+                if (index > 0) {
+                    prevBtn.style.visibility = 'visible';
+                    prevBtn.onclick = () => selectTopic(index - 1);
+                } else {
+                    prevBtn.style.visibility = 'hidden';
+                }
+
+                if (index < topics.length - 1) {
+                    nextBtn.style.visibility = 'visible';
+                    nextBtn.onclick = () => selectTopic(index + 1);
+                } else {
+                    nextBtn.style.visibility = 'hidden';
+                }
+
+                // Auto-collapse syllabus on mobile after user clicks a topic and scroll directly to lesson
+                const sidebar = document.getElementById('modulesSidebar');
+                const lessonCard = document.getElementById('lessonCard');
+                if (isUserAction && window.innerWidth <= 900) {
+                    if (sidebar) sidebar.classList.add('collapsed');
+                    if (lessonCard) {
+                        lessonCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else if (isUserAction) {
+                    window.scrollTo({ top: 150, behavior: 'smooth' });
+                }
+            }
+
+            // Mobile syllabus collapse toggle
+            const toggleBtn = document.getElementById('syllabusToggleBtn');
+            const sidebar = document.getElementById('modulesSidebar');
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+
+            window.zoomLessonImg = function(url) {
+                const modal = document.getElementById('classroomImgModal');
+                const img = document.getElementById('modalEnlargedImg');
+                img.src = url;
+                modal.classList.add('active');
+            };
+
+            const closeBtn = document.querySelector('#classroomImgModal .close-modal');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    document.getElementById('classroomImgModal').classList.remove('active');
+                });
+            }
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            if (typeof setupResponsiveNavigation === 'function') {
+                setupResponsiveNavigation();
+            }
+        });
+    </script>
+</body>
+</html>
+
