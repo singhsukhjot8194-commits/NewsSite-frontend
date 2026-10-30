@@ -118,18 +118,28 @@ const formatRegion = (region) => region
   ? region.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
   : '';
 
+const decodeHtmlEntities = (str) => {
+  if (typeof str !== 'string' || !str) return '';
+  const txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  let decoded = txt.value;
+  if (/&[a-z0-9#]+;/i.test(decoded)) {
+    txt.innerHTML = decoded;
+    decoded = txt.value;
+  }
+  return decoded;
+};
+
 const stripHtmlTags = (str) => {
   if (typeof str !== 'string') return '';
-  let clean = str
+  let clean = decodeHtmlEntities(str)
     .replace(/<li[^>]*>/gi, '\n• ')
     .replace(/<\/li>/gi, '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n\n')
     .replace(/<\/div>/gi, '\n')
     .replace(/<[^>]+>/g, '');
-  const txt = document.createElement('textarea');
-  txt.innerHTML = clean;
-  return txt.value.trim();
+  return decodeHtmlEntities(clean).trim();
 };
 
 const escapeAttr = (value) => {
@@ -144,8 +154,12 @@ const escapeAttr = (value) => {
 
 const formatDescriptionText = (text) => {
   if (!text || typeof text !== 'string') return '<p>No description available.</p>';
-  // If input contains HTML tags, strip them cleanly so only pure words remain
-  const cleanWords = /<[a-z][\s\S]*>/i.test(text) ? stripHtmlTags(text) : text.trim();
+  let raw = text;
+  if (/&[a-z0-9#]+;/i.test(raw)) {
+    raw = decodeHtmlEntities(raw);
+  }
+  // Strip any embedded HTML tags so only pure, readable words remain
+  const cleanWords = /<[a-z][\s\S]*>/i.test(raw) || /<[a-z]/i.test(raw) ? stripHtmlTags(raw) : raw.trim();
 
   // Split into paragraph blocks separated by double linebreaks
   const blocks = cleanWords.split(/\n\s*\n+/);
