@@ -480,7 +480,12 @@
                 
                 const contentEl = document.getElementById('activeTopicContent');
                 if (topic.content) {
-                    contentEl.innerHTML = topic.content;
+                    const text = topic.content;
+                    if (/<[a-z][\s\S]*>/i.test(text)) {
+                        contentEl.innerHTML = text;
+                    } else {
+                        contentEl.innerHTML = text.split(/\n\s*\n+/).map(p => `<p style="margin-bottom: 14px; line-height: 1.7; font-size: 15px; color: #334155;">${escapeHtml(p.trim()).replace(/\n/g, '<br>')}</p>`).join('');
+                    }
                 } else {
                     contentEl.innerHTML = '<p style="color: #64748b;">No text notes uploaded for this module.</p>';
                 }

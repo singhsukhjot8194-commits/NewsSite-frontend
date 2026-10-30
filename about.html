@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>About Us - The African Diplomat (TAD)</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #0c2333 0%, #0369a1 100%);
+            color: white;
+            text-align: center;
+            padding: 70px 20px 80px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid var(--gold, #f59e0b);
+        }
+
+        .about-hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(6, 182, 212, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .about-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.2);
+            color: #fef08a;
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
+        }
+
+        .about-hero h1 {
+            font-size: 40px;
+            color: #ffffff;
+            margin-bottom: 14px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .about-hero-motto {
+            font-size: 20px;
+            color: #7dd3fc;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            max-width: 800px;
+            margin: 0 auto 16px;
+        }
+
+        .about-hero p {
+            font-size: 16px;
+            color: #e0f2fe;
+            max-width: 760px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .about-container {
+            max-width: 1040px;
+            margin: -40px auto 60px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .about-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 40px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 35px;
+        }
+
+        .about-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .about-section-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #e0f7fa;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .about-section-header h2 {
+            font-size: 26px;
+            color: #0c2333;
+            margin: 0;
+        }
+
+        .about-text {
+            color: #334155;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .about-text:last-child {
+            margin-bottom: 0;
+        }
+
+        .about-highlight-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f7fa 100%);
+            border-left: 4px solid #0284c7;
+            padding: 20px 24px;
+            border-radius: 0 10px 10px 0;
+            margin: 22px 0;
+            font-size: 16px;
+            color: #0f172a;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* Mission & Vision Dual Grid */
+        .mv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .mv-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 35px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mv-card.mission {
+            border-top: 5px solid #0284c7;
+        }
+
+        .mv-card.vision {
+            border-top: 5px solid #f59e0b;
+        }
+
+        .mv-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .mv-card.mission .mv-icon {
+            background: #e0f7fa;
+            color: #0284c7;
+        }
+
+        .mv-card.vision .mv-icon {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .mv-card h3 {
+            font-size: 24px;
+            color: #0c2333;
+            margin-bottom: 15px;
+        }
+
+        .mv-card p {
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+
+        .mv-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* What We Cover Grid */
+        .cover-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 20px;
+            margin-top: 22px;
+        }
+
+        .cover-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px 20px;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cover-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.1);
+            border-color: #38bdf8;
+            background: #ffffff;
+        }
+
+        .cover-item-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .cover-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #0284c7;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .cover-item h4 {
+            font-size: 17px;
+            color: #0f172a;
+            margin: 0;
+            font-weight: 700;
+            font-family: "DM Sans", sans-serif;
+        }
+
+        .cover-item p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Core Values Grid */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .value-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 18px;
+            border-left: 3px solid #f59e0b;
+            transition: all 0.2s ease;
+        }
+
+        .value-card:hover {
+            background: #ffffff;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+            border-left-color: #0284c7;
+        }
+
+        .value-card h5 {
+            font-size: 16px;
+            color: #0c2333;
+            margin-bottom: 6px;
+            font-family: "DM Sans", sans-serif;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .value-card p {
+            font-size: 13.5px;
+            color: #64748b;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        /* Community & Closing Banner */
+        .community-banner {
+            background: linear-gradient(135deg, #0c2333 0%, #0369a1 100%);
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 45px 35px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 14px 35px rgba(12, 35, 51, 0.25);
+            border-top: 4px solid var(--gold, #f59e0b);
+        }
+
+        .community-banner h3 {
+            font-size: 30px;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .community-banner .tagline {
+            font-size: 18px;
+            color: #fef08a;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .community-banner p {
+            font-size: 16px;
+            color: #e0f2fe;
+            line-height: 1.75;
+            max-width: 720px;
+            margin: 0 auto 24px;
+        }
+
+        .community-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .community-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .community-btn-primary {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+        }
+
+        .community-btn-primary:hover {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            transform: translateY(-2px);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+        }
+
+        .community-btn-outline {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .community-btn-outline:hover {
+            background: #ffffff;
+            color: #0c2333;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .about-hero {
+                padding: 45px 15px 60px;
+            }
+
+            .about-hero h1 {
+                font-size: 28px;
+            }
+
+            .about-hero-motto {
+                font-size: 16px;
+            }
+
+            .about-card {
+                padding: 24px 18px;
+            }
+
+            .cover-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mv-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .community-banner {
+                padding: 30px 20px;
+            }
+
+            .community-banner h3 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="topline">
+            <div class="container topline-inner">
+                <time id="today-date"></time>
+                <a href="#" data-quick-pay="the-african-diplomat-subscription"><i class="far fa-envelope"></i> Subscribe</a>
+            </div>
+        </div>
+        <div class="container masthead">
+            <a href="index.html" class="brand" aria-label="The African Diplomat home">
+                <img class="brand-image" src="logo.jpeg" alt="">
+                <span class="brand-name">TAD<small>THE AFRICAN DIPLOMAT</small></span>
+                <span class="brand-tagline">AFRICA'S VOICE OF DIPLOMACY</span>
+            </a>
+            <div class="masthead-actions">
+                <form id="search-form" class="search-bar">
+                    <input type="search" placeholder="Search news..." aria-label="Search news">
+                    <button type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
+                </form>
+                <a class="support-button" href="donate.html"><i class="fas fa-heart"></i> Donation</a>
+            </div>
+        </div>
+        <div class="primary-nav">
+            <div class="container navbar">
+                <nav class="nav-links" aria-label="Main navigation">
+                    <a href="index.html" aria-label="Home"><i class="fas fa-home"></i></a>
+                    <a href="about.html" class="active" style="color: #0284c7; font-weight: 700;">About Us</a>
+                    <a href="category.html?cat=business">Business</a>
+                    <a href="category.html?cat=education">Education</a>
+                    <a href="category.html?cat=politics">Politics</a>
+                    <a href="category.html?cat=news">News</a>
+                    <a href="category.html?cat=breaking-news">Breaking News</a>
+                    <a href="category.html?cat=podcasts">Podcasts</a>
+                    <a href="category.html?cat=sports">Sports</a>
+                    <a href="category.html?cat=county-news">County News</a>
+                    <a href="opportunities.html?type=Course">Courses</a>
+                    <a href="opportunities.html?type=Workshop">Workshops</a>
+                    <a href="category.html?cat=brand" style="color: #ef4444; font-weight: 700;"><i class="fas fa-tag"></i> Brand</a>
+                    <div class="nav-more">
+                        <a href="category.html?cat=africa" class="nav-more-link">Africa <i class="fas fa-chevron-down"></i></a>
+                        <div class="nav-dropdown">
+                            <a href="category.html?cat=africa">All Africa</a>
+                            <a href="category.html?cat=africa&amp;region=north-africa">North Africa</a>
+                            <a href="category.html?cat=africa&amp;region=south-africa">South Africa</a>
+                            <a href="category.html?cat=africa&amp;region=east-africa">East Africa</a>
+                            <a href="category.html?cat=africa&amp;region=west-africa">West Africa</a>
+                        </div>
+                    </div>
+                    <div class="nav-more">
+                        <button type="button" class="nav-more-link">More <i class="fas fa-chevron-down"></i></button>
+                        <div class="nav-dropdown">
+                            <a href="category.html?cat=world">World</a>
+                            <a href="category.html?cat=technology">Technology</a>
+                            <a href="about.html">About Us</a>
+                        </div>
+                    </div>
+                </nav>
+                <a class="nav-search" href="search.html" aria-label="Search"><i class="fas fa-search"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Header -->
+    <section class="about-hero">
+        <div class="container">
+            <span class="about-badge"><i class="fas fa-globe-africa"></i> About Us</span>
+            <h1>The African Diplomat (TAD)</h1>
+            <div class="about-hero-motto">Amplifying African Voices. Connecting Africa to the World.</div>
+            <p>
+                An African-focused digital media platform dedicated to informing, educating, and connecting people through credible news, insightful journalism, and engaging storytelling about Africa and its relationship with the global community.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="about-container">
+
+        <!-- Who We Are -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-users"></i></div>
+                <h2>Who We Are</h2>
+            </div>
+            <p class="about-text">
+                <strong>The African Diplomat (TAD)</strong> is an African-focused digital media platform dedicated to informing, educating, and connecting people through credible news, insightful journalism, and engaging storytelling about Africa and its relationship with the rest of the world.
+            </p>
+            <p class="about-text">
+                We are committed to highlighting Africa's political, diplomatic, economic, social, cultural, and technological developments while providing our readers with a deeper understanding of the issues shaping the continent and the global community.
+            </p>
+            <div class="about-highlight-box">
+                "Through our digital platform, we aim to create a space where African voices, perspectives, achievements, and challenges receive the attention they deserve."
+            </div>
+            <p class="about-text">
+                At TAD, we believe that information is a powerful tool for development, accountability, peace, and international cooperation. Our goal is to contribute to a better-informed society by delivering relevant, responsible, and meaningful content to audiences across Africa and beyond.
+            </p>
+        </section>
+
+        <!-- Our History and Identity -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-landmark"></i></div>
+                <h2>Our History and Identity</h2>
+            </div>
+            <p class="about-text">
+                The African Diplomat is built on the belief that Africa deserves a strong, independent, and credible voice in global conversations.
+            </p>
+            <p class="about-text">
+                Our identity is rooted in African values, journalistic responsibility, international awareness, and a commitment to telling stories that matter. We recognize the importance of Africa's history, diversity, and growing influence in global affairs.
+            </p>
+            <p class="about-text">
+                As a digital media platform, TAD seeks to bridge the information gap between Africa and the international community by reporting on important developments, exploring emerging opportunities, and highlighting the people and institutions contributing to Africa's progress.
+            </p>
+            <p class="about-text">
+                Our journey is guided by a commitment to continuous growth, responsible journalism, and the use of digital technology to make information accessible to a wider audience.
+            </p>
+        </section>
+
+        <!-- Mission and Vision -->
+        <div class="mv-grid">
+            <div class="mv-card mission">
+                <div class="mv-icon"><i class="fas fa-bullseye"></i></div>
+                <h3>Our Mission</h3>
+                <p>
+                    Our mission is to provide timely, accurate, balanced, and engaging information about Africa and global affairs while promoting informed public discussions, transparency, accountability, and a better understanding of African perspectives.
+                </p>
+                <p>
+                    We strive to tell stories that inform our readers, inspire positive change, and strengthen connections between Africa and the world.
+                </p>
+            </div>
+            <div class="mv-card vision">
+                <div class="mv-icon"><i class="fas fa-eye"></i></div>
+                <h3>Our Vision</h3>
+                <p>
+                    Our vision is to become a trusted and influential African digital media platform recognized for credible journalism, impactful storytelling, and comprehensive coverage of African affairs and international relations.
+                </p>
+                <p>
+                    We aspire to build a platform that contributes to Africa's development by connecting people, sharing knowledge, promoting dialogue, and bringing African stories to a global audience.
+                </p>
+            </div>
+        </div>
+
+        <!-- What We Cover -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-layer-group"></i></div>
+                <h2>What We Cover</h2>
+            </div>
+            <p class="about-text">
+                The African Diplomat covers a wide range of subjects that shape Africa and the world, including:
+            </p>
+            <div class="cover-grid">
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">1</span>
+                        <h4>News and Current Affairs</h4>
+                    </div>
+                    <p>Updates on important national, regional, continental, and international developments.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">2</span>
+                        <h4>Diplomacy &amp; International Relations</h4>
+                    </div>
+                    <p>Coverage of diplomatic engagements, bilateral relations, international partnerships, foreign policy, and cooperation between African countries and the rest of the world.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">3</span>
+                        <h4>Politics and Governance</h4>
+                    </div>
+                    <p>Reporting and analysis on leadership, elections, public policy, governance, democracy, and accountability.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">4</span>
+                        <h4>Business &amp; Economic Development</h4>
+                    </div>
+                    <p>Stories about entrepreneurship, investment, trade, innovation, infrastructure, and economic opportunities across Africa.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">5</span>
+                        <h4>Education, Science, and Technology</h4>
+                    </div>
+                    <p>Developments in education, digital transformation, artificial intelligence, scientific research, and technological innovation.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">6</span>
+                        <h4>Culture and Society</h4>
+                    </div>
+                    <p>Stories celebrating Africa's cultural diversity, traditions, arts, entertainment, heritage, and social development.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">7</span>
+                        <h4>Interviews and Special Reports</h4>
+                    </div>
+                    <p>Conversations with diplomats, government officials, business leaders, academics, journalists, development professionals, and other influential voices.</p>
+                </div>
+                <div class="cover-item">
+                    <div class="cover-item-header">
+                        <span class="cover-num">8</span>
+                        <h4>African Achievements &amp; Human-Interest</h4>
+                    </div>
+                    <p>Highlighting individuals, organizations, and communities making meaningful contributions to Africa's progress.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Website -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-desktop"></i></div>
+                <h2>Our Website</h2>
+            </div>
+            <p class="about-text">
+                The African Diplomat website serves as our digital home, connecting readers to news, information, opinions, interviews, features, and special reports on issues affecting Africa and the international community.
+            </p>
+            <p class="about-text">
+                Our platform is designed to make important information accessible to readers wherever they are. Whether covering developments in African capitals, diplomatic engagements abroad, business opportunities, or inspiring stories of African achievement, we aim to keep our audience informed and connected.
+            </p>
+            <p class="about-text">
+                We are committed to developing a user-friendly digital experience where readers can explore relevant stories, discover different perspectives, and stay informed about the issues that matter.
+            </p>
+            <p class="about-text">
+                As our platform grows, we aim to expand our coverage, strengthen our digital presence, and build a community of readers who value credible information and meaningful journalism.
+            </p>
+        </section>
+
+        <!-- Our Core Values -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-shield-alt"></i></div>
+                <h2>Our Core Values</h2>
+            </div>
+            <p class="about-text">
+                The African Diplomat is guided by the following principles:
+            </p>
+            <div class="values-grid">
+                <div class="value-card">
+                    <h5><i class="fas fa-check-circle" style="color: #0284c7;"></i> Accuracy</h5>
+                    <p>We value factual reporting, verification, and responsible presentation of information.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-balance-scale" style="color: #0284c7;"></i> Integrity</h5>
+                    <p>We are committed to honesty, transparency, and ethical conduct.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-feather-alt" style="color: #0284c7;"></i> Independence</h5>
+                    <p>We aim to approach reporting with fairness and editorial responsibility.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-globe-africa" style="color: #0284c7;"></i> African Identity</h5>
+                    <p>We recognize Africa's diversity, achievements, challenges, and potential.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-user-shield" style="color: #0284c7;"></i> Accountability</h5>
+                    <p>We believe journalism should encourage transparency and responsible leadership.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-hands-helping" style="color: #0284c7;"></i> Inclusivity</h5>
+                    <p>We value diverse voices, experiences, and perspectives.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-lightbulb" style="color: #0284c7;"></i> Innovation</h5>
+                    <p>We embrace digital tools and new approaches to make information more accessible.</p>
+                </div>
+                <div class="value-card">
+                    <h5><i class="fas fa-network-wired" style="color: #0284c7;"></i> Global Perspective</h5>
+                    <p>We seek to connect African developments with the wider international community.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Commitment to Responsible Journalism -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-certificate"></i></div>
+                <h2>Our Commitment to Responsible Journalism</h2>
+            </div>
+            <p class="about-text">
+                Trust is essential to meaningful journalism. The African Diplomat recognizes the responsibility that comes with publishing information and influencing public conversations.
+            </p>
+            <p class="about-text">
+                We aim to verify information before publication, distinguish news reporting from opinion, provide appropriate context, and correct significant errors when identified.
+            </p>
+            <p class="about-text">
+                We also believe in fairness, respect for human dignity, and responsible reporting on sensitive issues. Our objective is to inform rather than mislead, encourage constructive dialogue rather than division, and contribute positively to public understanding.
+            </p>
+        </section>
+
+        <!-- Africa and the World: Our Perspective -->
+        <section class="about-card">
+            <div class="about-section-header">
+                <div class="about-section-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <h2>Africa and the World: Our Perspective</h2>
+            </div>
+            <p class="about-text">
+                Africa is a continent of extraordinary diversity, rich cultural heritage, dynamic populations, and significant opportunities. Its countries and people continue to shape conversations about diplomacy, trade, security, technology, climate change, education, and sustainable development.
+            </p>
+            <p class="about-text">
+                The African Diplomat seeks to bring these stories into focus by exploring the issues that affect African communities and the continent's place in the world.
+            </p>
+            <p class="about-text">
+                We believe African stories should be told with context, professionalism, and an appreciation of the voices and experiences of the people behind them.
+            </p>
+        </section>
+
+        <!-- Join Our Community & Concluding Banner -->
+        <section class="community-banner">
+            <div class="tagline">The African Diplomat (TAD)</div>
+            <h3>Amplifying African Voices. Connecting Africa to the World.</h3>
+            <p>
+                The African Diplomat welcomes readers, journalists, contributors, researchers, professionals, and organizations that share an interest in Africa, journalism, diplomacy, and global affairs.
+            </p>
+            <p>
+                We encourage our audience to engage with our content, share constructive perspectives, and participate in conversations that promote knowledge, understanding, and progress. Together, we can strengthen the exchange of ideas, highlight important stories, and contribute to a more informed global community.
+            </p>
+            <div class="community-actions">
+                <a href="index.html" class="community-btn community-btn-primary"><i class="fas fa-newspaper"></i> Read Latest News</a>
+                <a href="https://wa.me/231777649986" target="_blank" class="community-btn community-btn-outline"><i class="fab fa-whatsapp"></i> Join Our Community</a>
+                <a href="donate.html" class="community-btn community-btn-outline"><i class="fas fa-heart"></i> Support Our Work</a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="logo" aria-label="The African Diplomat home">
+                        <img class="logo-image" src="logo.jpeg" alt="">
+                        <span class="logo-text">The African Diplomat</span>
+                    </a>
+                    <p>Your source for African news, insight, and opportunities.</p>
+                    <p style="margin-top: 10px;"><a href="about.html" style="color: #38bdf8; font-weight: 600; font-size: 14px;">Learn more about TAD &rarr;</a></p>
+                </div>
+                <div class="footer-categories">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li><a href="category.html?cat=news">News</a></li>
+                        <li><a href="category.html?cat=politics">Politics</a></li>
+                        <li><a href="category.html?cat=business">Business</a></li>
+                        <li><a href="category.html?cat=education">Education</a></li>
+                        <li><a href="category.html?cat=sports">Sports</a></li>
+                        <li><a href="category.html?cat=breaking-news">Breaking News</a></li>
+                        <li><a href="category.html?cat=podcasts">Podcasts</a></li>
+                        <li><a href="category.html?cat=county-news">County News</a></li>
+                        <li><a href="category.html?cat=africa">Africa</a></li>
+                        <li><a href="category.html?cat=world">World</a></li>
+                        <li><a href="category.html?cat=technology">Technology</a></li>
+                        <li><a href="opportunities.html?type=Course">Courses</a></li>
+                        <li><a href="opportunities.html?type=Workshop">Workshops</a></li>
+                        <li><a href="category.html?cat=brand">Brand</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact &amp; Follow</h3>
+                    <div class="footer-social-links" style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+                        <a href="https://wa.me/231777649986" target="_blank" aria-label="WhatsApp" style="display: flex; align-items: center; gap: 8px;"><i class="fab fa-whatsapp" aria-hidden="true" style="font-size: 1.2em;"></i> +231 77 764 9986</a>
+                        <a href="https://wa.me/17729402871" target="_blank" aria-label="WhatsApp" style="display: flex; align-items: center; gap: 8px;"><i class="fab fa-whatsapp" aria-hidden="true" style="font-size: 1.2em;"></i> +1 (772) 940-2871</a>
+                        <a href="https://wa.me/16093346619" target="_blank" aria-label="WhatsApp" style="display: flex; align-items: center; gap: 8px;"><i class="fab fa-whatsapp" aria-hidden="true" style="font-size: 1.2em;"></i> +1 (609) 334-6619</a>
+                        <a href="https://www.instagram.com/theafricandiplomattad?cplk=Y2dhdnZtaHg0cWhu" target="_blank" aria-label="Instagram" style="display: flex; align-items: center; gap: 8px;"><i class="fab fa-instagram" aria-hidden="true" style="font-size: 1.2em;"></i> Instagram</a>
+                        <a href="https://www.facebook.com/share/1Dj8qqgWDC/" target="_blank" aria-label="Facebook" style="display: flex; align-items: center; gap: 8px;"><i class="fab fa-facebook" aria-hidden="true" style="font-size: 1.2em;"></i> Facebook</a>
+                        <a href="https://youtube.com/@theafricandiplomat-tad?si=HgFIuRsFDjYxI97V" target="_blank" aria-label="YouTube" style="display: flex; align-items: center; gap: 8px;"><i class="fab fa-youtube" aria-hidden="true" style="font-size: 1.2em;"></i> YouTube</a>
+                        <a href="mailto:theafricandiplomat@yahoo.com" aria-label="Yahoo Email" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-envelope" aria-hidden="true" style="font-size: 1.2em;"></i> theafricandiplomat@yahoo.com</a>
+                        <a href="mailto:theafricandiplomattad@gmail.com" aria-label="Gmail" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-envelope" aria-hidden="true" style="font-size: 1.2em;"></i> theafricandiplomattad@gmail.com</a>
+                        <span style="display: flex; align-items: flex-start; gap: 8px; color: #cbd5e1; line-height: 1.4;"><i class="fas fa-map-marker-alt" aria-hidden="true" style="font-size: 1.2em; margin-top: 3px;"></i> <span>4205 Birkdale Drive,<br>Fort Pierce, Florida 34947</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-legal" style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <a href="about.html" style="color: #cbd5e1; text-decoration: none; font-size: 14px; padding: 5px;">About Us</a>
+                    <a href="refund-policy.html" style="color: #cbd5e1; text-decoration: none; font-size: 14px; padding: 5px;">Refund Policy</a>
+                    <a href="terms-conditions.html" style="color: #cbd5e1; text-decoration: none; font-size: 14px; padding: 5px;">Terms &amp; Conditions</a>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <span>&copy; 2026 The African Diplomat. All rights reserved.</span>
+                    <a href="#" class="back-to-top" style="color: white; text-decoration: none;">Back to top <i class="fas fa-chevron-up" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
+

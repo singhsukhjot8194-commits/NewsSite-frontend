@@ -118,52 +118,92 @@ const formatRegion = (region) => region
   ? region.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
   : '';
 
-// XSS hardening: allow only a safe subset of HTML for user/author-controlled content
-const sanitizeHTML = (html) => {
-  if (typeof html !== 'string' || !html.trim()) return '';
-  const div = document.createElement('div');
-  div.textContent = html;
-  let safe = div.innerHTML;
-  safe = safe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-  // Re-allow a minimal safe set of structural tags only (no attributes, no scripts)
-  safe = safe
-    .replace(/&lt;p&gt;/g, '<p>')
-    .replace(/&lt;\/p&gt;/g, '</p>')
-    .replace(/&lt;br\s*\/?&gt;/gi, '<br>')
-    .replace(/&lt;b&gt;/g, '<b>')
-    .replace(/&lt;\/b&gt;/g, '</b>')
-    .replace(/&lt;strong&gt;/g, '<strong>')
-    .replace(/&lt;\/strong&gt;/g, '</strong>')
-    .replace(/&lt;i&gt;/g, '<i>')
-    .replace(/&lt;\/i&gt;/g, '</i>')
-    .replace(/&lt;em&gt;/g, '<em>')
-    .replace(/&lt;\/em&gt;/g, '</em>')
-    .replace(/&lt;ul&gt;/g, '<ul>')
-    .replace(/&lt;\/ul&gt;/g, '</ul>')
-    .replace(/&lt;ol&gt;/g, '<ol>')
-    .replace(/&lt;\/ol&gt;/g, '</ol>')
-    .replace(/&lt;li&gt;/g, '<li>')
-    .replace(/&lt;\/li&gt;/g, '</li>')
-    .replace(/&lt;h([1-6])&gt;/g, '<h$1>')
-    .replace(/&lt;\/h([1-6])&gt;/g, '</h$1>')
-    .replace(/&lt;blockquote&gt;/g, '<blockquote>')
-    .replace(/&lt;\/blockquote&gt;/g, '</blockquote>');
-  return safe;
+const stripHtmlTags = (str) => {
+  if (typeof str !== 'string') return '';
+  let clean = str
+    .replace(/<li[^>]*>/gi, '\n• ')
+    .replace(/<\/li>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<[^>]+>/g, '');
+  const txt = document.createElement('textarea');
+  txt.innerHTML = clean;
+  return txt.value.trim();
 };
 
 const escapeAttr = (value) => {
-  if (typeof value !== 'string') return String(value);
+  if (typeof value !== 'string') return String(value || '');
   return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+};
+
+const formatDescriptionText = (text) => {
+  if (!text || typeof text !== 'string') return '<p>No description available.</p>';
+  // If input contains HTML tags, strip them cleanly so only pure words remain
+  const cleanWords = /<[a-z][\s\S]*>/i.test(text) ? stripHtmlTags(text) : text.trim();
+
+  // Split into paragraph blocks separated by double linebreaks
+  const blocks = cleanWords.split(/\n\s*\n+/);
+  return blocks.map(block => {
+    const trimmed = block.trim();
+    if (!trimmed) return '';
+    const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
+    const isAllBullets = lines.length > 0 && lines.every(l => /^[•\-\*]/.test(l));
+    if (isAllBullets) {
+      const listItems = lines.map(line => {
+        const itemText = line.replace(/^[•\-\*]\s*/, '').trim();
+        return `<li style="margin-bottom: 8px; line-height: 1.6;">${escapeAttr(itemText)}</li>`;
+      }).join('');
+      return `<ul style="margin: 12px 0 18px 24px; list-style-type: disc; color: #334155;">${listItems}</ul>`;
+    }
+    if (trimmed.includes('•') || lines.some(l => /^[•\-\*]/.test(l))) {
+      let html = '';
+      let currentList = [];
+      lines.forEach(line => {
+        if (/^[•\-\*]/.test(line)) {
+          const itemText = line.replace(/^[•\-\*]\s*/, '').trim();
+          currentList.push(`<li style="margin-bottom: 8px; line-height: 1.6;">${escapeAttr(itemText)}</li>`);
+        } else {
+          if (currentList.length) {
+            html += `<ul style="margin: 12px 0 18px 24px; list-style-type: disc; color: #334155;">${currentList.join('')}</ul>`;
+            currentList = [];
+          }
+          html += `<p style="margin-bottom: 14px; line-height: 1.7; color: #334155; font-size: 15px;">${escapeAttr(line)}</p>`;
+        }
+      });
+      if (currentList.length) {
+        html += `<ul style="margin: 12px 0 18px 24px; list-style-type: disc; color: #334155;">${currentList.join('')}</ul>`;
+      }
+      return html;
+    }
+    return `<p style="margin-bottom: 14px; line-height: 1.7; color: #334155; font-size: 15px;">${escapeAttr(trimmed).replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+};
+
+// XSS hardening for rich text content
+const sanitizeHTML = (html) => {
+  if (typeof html !== 'string' || !html.trim()) return '';
+  if (!/<[a-z][\s\S]*>/i.test(html)) {
+    return formatDescriptionText(html);
+  }
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  const dangerous = template.content.querySelectorAll('script, style, iframe, object, embed, form, input, button');
+  dangerous.forEach(el => el.remove());
+  const allElements = template.content.querySelectorAll('*');
+  allElements.forEach(el => {
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.startsWith('on') || attr.value.toLowerCase().includes('javascript:')) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+  return template.innerHTML;
 };
 
 
@@ -416,7 +456,7 @@ const createProductCard = (product) => {
         <h3 class="product-title">${product.name}</h3>
         <p class="product-description">${product.description}</p>
         <div class="product-action">
-          <button class="btn btn-product" data-product-id="${product.id}" data-product-name="${product.name}">Order Now - WhatsApp</button>
+          <button class="btn btn-product" data-product-id="${product.id}" data-product-name="${product.name}"><i class="fab fa-whatsapp"></i> Order Now</button>
         </div>
       </div>
     </article>
@@ -551,10 +591,11 @@ const initCategory = async () => {
     : 'News';
   const pageTitle = regionNames[region] || categoryName;
   const catTitle = document.getElementById('category-title');
-  const isProductCategory = category?.toLowerCase() === 'product' || category?.toLowerCase() === 'products';
-  if (catTitle) catTitle.textContent = isProductCategory ? pageTitle : /news$/i.test(pageTitle) ? pageTitle : `${pageTitle} News`;
+  const isProductCategory = category?.toLowerCase() === 'brand' || category?.toLowerCase() === 'product' || category?.toLowerCase() === 'products';
+  const displayTitle = isProductCategory ? 'Brand' : (regionNames[region] || categoryName);
+  if (catTitle) catTitle.textContent = isProductCategory ? 'Brand Merchandise' : /news$/i.test(displayTitle) ? displayTitle : `${displayTitle} News`;
   const breadcrumb = document.getElementById('category-breadcrumb');
-  if (breadcrumb) breadcrumb.textContent = pageTitle;
+  if (breadcrumb) breadcrumb.textContent = isProductCategory ? 'Brand' : displayTitle;
   const regionLinks = document.getElementById('region-links');
   if (regionLinks && category?.toLowerCase() === 'africa') regionLinks.hidden = false;
 
@@ -564,8 +605,8 @@ const initCategory = async () => {
   const productsContact = document.getElementById('products-contact');
   showLoader('category-news');
 
-  // Check if it's the products category
-  if (category?.toLowerCase() === 'product' || category?.toLowerCase() === 'products') {
+  // Check if it's the brand/products category
+  if (isProductCategory) {
     // Hide news container, show products section
     if (container) container.style.display = 'none';
     if (productsSection) productsSection.hidden = false;
@@ -574,10 +615,9 @@ const initCategory = async () => {
       // Add click handlers for product inquiry buttons
       productsGrid.querySelectorAll('.btn-product').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const productName = e.target.dataset.productName;
-          const phone1 = '+231777649986';
-          const phone2 = '+17729402871';
-          const message = `Hello, I'm interested in purchasing the "${productName}" from The African Diplomat merchandise. Please provide more details and pricing.`;
+          const productName = e.target.closest('.btn-product').dataset.productName;
+          const phone1 = '231777649986';
+          const message = `Hello, I'm interested in purchasing the "${productName}" from The African Diplomat brand merchandise. Please provide more details and pricing.`;
           const whatsappUrl = `https://wa.me/${phone1}?text=${encodeURIComponent(message)}`;
           window.open(whatsappUrl, '_blank');
         });
@@ -598,23 +638,27 @@ const initCategory = async () => {
         });
       });
     }
-    // Add contact section
+    // Add contact section with inviting red styling & clear contact options
     if (productsContact) {
       productsContact.innerHTML = `
         <div class="products-contact-card">
-          <h3><i class="fas fa-phone-alt"></i> Ready to Purchase?</h3>
-          <p>These premium merchandise items make perfect gifts or additions to your personal collection. Each product is crafted with quality materials and features our distinctive branding.</p>
-          <div class="contact-phones">
-            <a href="https://wa.me/231777649986" target="_blank" class="contact-phone">
-              <i class="fab fa-whatsapp"></i>
-              <span>+231 77 764 9986</span>
-            </a>
-            <a href="https://wa.me/17729402871" target="_blank" class="contact-phone">
-              <i class="fab fa-whatsapp"></i>
-              <span>+1 (772) 940-2871</span>
-            </a>
+          <div class="brand-contact-badge"><i class="fas fa-tag"></i> Official Brand Merchandise</div>
+          <h3><i class="fas fa-shopping-bag"></i> Interested in Owning Our Brand Merchandise?</h3>
+          <p>Elevate your style with genuine <strong>The African Diplomat</strong> gear—crafted with high-grade materials, precision tailoring, and distinguished diplomacy insignia. Perfect for personal wear, executive office collections, or as prestige gifts.</p>
+          <div class="brand-contact-callout">
+            <span class="callout-label">To purchase these merchandise items, contact us directly:</span>
+            <div class="contact-phones">
+              <a href="https://wa.me/231777649986?text=${encodeURIComponent("Hello! I would like to order The African Diplomat brand merchandise.")}" target="_blank" class="contact-phone">
+                <i class="fab fa-whatsapp"></i>
+                <span>+231 77 764 9986</span>
+              </a>
+              <a href="https://wa.me/17729402871?text=${encodeURIComponent("Hello! I would like to order The African Diplomat brand merchandise.")}" target="_blank" class="contact-phone">
+                <i class="fab fa-whatsapp"></i>
+                <span>+1 (772) 940-2871</span>
+              </a>
+            </div>
           </div>
-          <p class="contact-note">Contact us via WhatsApp for pricing, availability, and shipping information!</p>
+          <p class="contact-note"><i class="fas fa-truck-fast"></i> Reach out on WhatsApp or call for immediate availability, custom sizes, and secure international delivery.</p>
         </div>
       `;
     }
@@ -748,8 +792,10 @@ const initOpportunityDetail = async () => {
     </div>
     
     <div class="article-content" style="margin-bottom: 30px;">
-      <h3>Description</h3>
-      <p>${sanitizeHTML(opp.fullDetails || opp.shortDesc || 'No detailed description available.')}</p>
+      <h3 style="font-size: 20px; color: var(--primary-color); margin-bottom: 14px;"><i class="fas fa-align-left" style="color: var(--accent-color);"></i> Description</h3>
+      <div class="opportunity-description-body" style="background: white; padding: 22px 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
+        ${formatDescriptionText(opp.fullDetails || opp.shortDesc || 'No detailed description available.')}
+      </div>
       
       <h3 style="margin-top: 20px;">Eligibility</h3>
       <p>${escapeAttr(opp.eligibility || 'Open to all')}</p>
