@@ -365,7 +365,7 @@ const formatUsd = (amount) => new Intl.NumberFormat('en-US', {
 // Render Functions
 const createNewsCard = (news) => {
   const categoryLabel = news.region
-    ? `${escapeAttr(news.category || 'Africa')} · ${formatRegion(news.region)}`
+    ? `${escapeAttr(news.category || 'Africa')} &bull; ${formatRegion(news.region)}`
     : escapeAttr(news.category || 'News');
   return `
     <article class="card">
@@ -1074,9 +1074,35 @@ const setupResponsiveNavigation = () => {
   });
 };
 
+const initCookieConsent = () => {
+  if (localStorage.getItem('tad_cookie_consent')) return;
+  const banner = document.createElement('div');
+  banner.id = 'tad-cookie-banner';
+  banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0c2333;color:#e2e8f0;padding:14px 20px;z-index:99999;box-shadow:0 -4px 20px rgba(0,0,0,0.25);border-top:2px solid #0284c7;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:14px;';
+  banner.innerHTML = `
+    <div style="flex:1;min-width:280px;line-height:1.5;">
+      <i class="fas fa-shield-alt" style="color:#38bdf8;margin-right:8px;"></i>
+      We use essential cookies and local storage to ensure platform security, course delivery, and an optimal browsing experience. By continuing, you agree to our 
+      <a href="privacy-policy.html" style="color:#f59e0b;font-weight:600;text-decoration:underline;">Privacy Policy</a> and <a href="terms-conditions.html" style="color:#f59e0b;font-weight:600;text-decoration:underline;">Terms</a>.
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button id="tad-accept-cookies" style="background:#0284c7;color:white;border:none;padding:8px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;transition:background 0.2s;">Accept &amp; Continue</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+  const acceptBtn = document.getElementById('tad-accept-cookies');
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', () => {
+      localStorage.setItem('tad_cookie_consent', 'accepted');
+      banner.remove();
+    });
+  }
+};
+
 // Search handling setup (global)
 document.addEventListener('DOMContentLoaded', () => {
   setupResponsiveNavigation();
+  initCookieConsent();
   const todayDate = document.getElementById('today-date');
   if (todayDate) {
     todayDate.textContent = new Date().toLocaleDateString(undefined, {
